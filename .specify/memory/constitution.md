@@ -17,12 +17,15 @@ Handle media and user data conservatively:
 ### III. Reliability Over Cleverness
 Transcription must be resilient to long-running operations and failures:
 - Jobs are asynchronous and resumable (safe retries; idempotent job creation where feasible).
-- Surface clear job states (queued/running/succeeded/failed) and stable job identifiers.
+- Surface clear job states and stable job identifiers.
+	- Required state machine: `queued → processing → completed | failed`
 - Failures must be actionable (error codes/messages suitable for user display and support).
 
 ### IV. Contract-First API
 The web app’s core capabilities must be accessible via stable API contracts:
 - Define request/response schemas for job submission, status polling, and transcript retrieval.
+- Job creation must support either multipart upload or a JSON body containing an HTTP(S) VOD URL reference.
+- Export must guarantee at minimum `txt` and `srt` (or `vtt`).
 - Backwards compatibility is the default; breaking changes require versioning.
 - Minimum automated coverage includes schema validation + at least one end-to-end happy path.
 
@@ -54,6 +57,9 @@ Keep the system diagnosable and minimal:
 - API/schema changes require updating contract tests.
 - CI must run lint + typecheck (if applicable) + tests before merge.
 - User-visible behavior changes require updating product/README docs.
+- Repo must include reviewer-verifiable deliverables:
+	- README enables verification in < 10 minutes (local + deployed verification).
+	- Prompts/AI traceability is stored in `AI_LOG.md`.
 
 ## Governance
 This constitution supersedes other practices for this repo.
@@ -67,5 +73,6 @@ All PRs must confirm:
 - No transcript/user content leaked into logs.
 - Job and API contracts remain stable or are versioned.
 - Data retention/deletion behavior is unchanged or documented.
+- Deployed verification remains valid (working URL + reviewer credentials) or is updated as part of the change.
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-12 | **Last Amended**: 2026-02-12
+**Version**: 1.1.0 | **Ratified**: 2026-02-12 | **Last Amended**: 2026-02-12

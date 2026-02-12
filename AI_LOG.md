@@ -52,3 +52,33 @@
 ```
 
 </details>
+
+## Incorporated Candidate Assignment Invariants
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Updated the constitution to align job statuses with `queued → processing → completed | failed`.
+- Added API requirements for job creation inputs (upload or HTTP(S) URL) and export guarantees (`txt` and `srt` or `vtt`).
+- Added deliverability/verification invariants to quality gates and governance (README verify in <10 minutes, prompts traceability, deployed URL + reviewer creds).
+
+### Files Affected
+
+- `.specify/memory/constitution.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Incorporate these requirements into the constitution using the established template, ensuring minimal disruption to the existing text:
+- Job state machine should match the required statuses: queued → processing → completed | failed (current text uses running/succeeded).
+- Job creation inputs must support either file upload or HTTP(S) URL reference.
+- Exports must guarantee at least txt and srt (or vtt).
+- Deliverability/verification: deployed app + reviewer credentials + README “verify in <10 minutes” + prompts/AI traceability folder are submission invariants and fit under governance/quality gates.
+```
+
+</details>
