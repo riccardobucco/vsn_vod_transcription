@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: Private web utility for submitting VOD files (upload or direct URL) and receiving time-coded transcripts with confidence indicators and export formats.
 
+## Clarifications
+
+### Session 2026-02-12
+
+- Q: What authentication method should the utility use? → A: App login page + secure session cookie; one preconfigured “Reviewer” account (creds via env/config).
+- Q: What VOD duration should be explicitly supported in the initial release? → A: Up to 30 minutes.
+- Q: What input video formats should be supported initially? → A: MP4, MOV, MKV.
+- Q: What retention policy should apply to jobs and outputs? → A: Auto-delete after 30 days.
+- Q: How should transcript segments be determined? → A: Use the transcription engine’s native segments; do not force fixed-length or sentence re-segmentation.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Secure Access & Dashboard Visibility (Priority: P1)
@@ -61,6 +71,7 @@ As a Reviewer, I want completed jobs to show time-coded transcript segments and 
 - Uploaded file is corrupted, has no audio track, or cannot be decoded.
 - Network interruption occurs during upload; user retries submission.
 - Very large files or long-duration VODs cause extended processing times.
+- Submitted VOD exceeds the supported duration limit.
 - Job fails due to timeouts or resource limits and must show a basic reason.
 - Multiple submissions of the same source happen unintentionally; jobs must remain distinct and trackable.
 
@@ -70,24 +81,29 @@ As a Reviewer, I want completed jobs to show time-coded transcript segments and 
 
 Functional requirements are considered satisfied when all acceptance scenarios in the User Scenarios & Testing section pass.
 
-- **FR-001**: System MUST require authentication to access the application.
-- **FR-002**: System MUST provide at least one pre-configured "Reviewer" persona that can sign in without self-service registration.
+- **FR-001**: System MUST require authentication to access the application via an application-managed login page.
+- **FR-002**: System MUST provide at least one pre-configured "Reviewer" persona that can sign in without self-service registration (credentials provided via environment/configuration).
+- **FR-002a**: After login, the system MUST maintain an authenticated session via a secure session cookie.
 - **FR-003**: System MUST present a dashboard after login that answers: (a) what jobs exist, (b) what state each job is in, and (c) how to submit a new job.
 - **FR-004**: Users MUST be able to submit a transcription job by uploading a supported video file from their computer.
 - **FR-005**: Users MUST be able to submit a transcription job by pasting a direct link (URL) to a video file hosted elsewhere.
 - **FR-006**: System MUST validate job submissions and provide clear, human-readable feedback when submission is rejected (e.g., unsupported format, invalid URL).
+- **FR-006a**: The system MUST support VODs up to 30 minutes in duration; submissions that exceed this limit MUST be rejected or marked Failed with a clear reason.
+- **FR-006b**: The system MUST accept MP4, MOV, and MKV video inputs; other formats MUST be rejected or marked Failed with a clear reason.
 - **FR-007**: When a submission is accepted, the system MUST immediately confirm receipt and indicate that processing has started.
 - **FR-008**: System MUST process transcription asynchronously such that users are not required to keep a browser tab open for the job to continue.
 - **FR-009**: Each job MUST have a clearly visible lifecycle state: Queued, Processing, Completed, or Failed.
 - **FR-010**: The dashboard MUST show each job's current state and the time the job was submitted.
 - **FR-011**: For Failed jobs, the system MUST display a basic failure reason suitable for a non-technical user (e.g., corrupted file, unreachable URL, timeout).
 - **FR-012**: For Completed jobs, the system MUST provide a job detail view that includes the transcription broken into time-coded segments with start and end timestamps.
+- **FR-012a**: Transcript segmentation MUST use the transcription engine’s native segments; the system MUST NOT force fixed-length chunking or sentence-based re-segmentation.
 - **FR-013**: Each time-coded segment MUST include the segment text.
 - **FR-014**: The system MUST provide a confidence indicator for transcription quality (at minimum per segment, and optionally an overall summary).
 - **FR-015**: Users MUST be able to export and download the completed transcription as a plain text file (.txt).
 - **FR-016**: Users MUST be able to export and download the completed transcription as subtitle files in SRT (.srt) and WebVTT (.vtt).
 - **FR-017**: Users MUST be able to access completed outputs and exports after returning later (without resubmitting the original source).
 - **FR-018**: The system MUST keep a visible record of jobs on the dashboard so users can track historical submissions and outcomes.
+- **FR-019**: The system MUST retain jobs and completed outputs for 30 days after submission, after which they MUST be automatically deleted and no longer accessible.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -100,7 +116,7 @@ Functional requirements are considered satisfied when all acceptance scenarios i
 
 - The utility is VOD-only (no live streaming ingestion).
 - The initial release targets stakeholder usage via a pre-configured Reviewer login and does not include public registration.
-- Job history and completed outputs are retained for at least 30 days unless changed by product policy.
+- Job history and completed outputs are retained for 30 days and then auto-deleted.
 
 ### Out of Scope
 

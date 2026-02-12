@@ -161,3 +161,35 @@ A successful build means a user can log in, throw a video link at the system, cl
 ```
 
 </details>
+
+## Speckit Clarify: VOD Transcription Utility Spec
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Added a Clarifications section capturing 5 key product decisions (auth, max duration, supported formats, retention, segmentation).
+- Converted those decisions into testable functional requirements (login + session cookie, limits/validation, retention, native segmentation).
+- Updated edge cases and assumptions to match the clarified constraints.
+
+### Files Affected
+
+- `specs/001-vod-transcription-utility/spec.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.clarify.prompt.md](file:///Users/rbucco/Workspace/Personal/vsn/vsn_vod_transcription_clarify/.github/prompts/speckit.clarify.prompt.md).
+
+1. Use an app-managed login with a single preconfigured Reviewer account
+2. Support up to 30 minutes initially
+3. Accept MP4 + MOV + MKV initially
+4. Auto-delete jobs and outputs after 30 days
+5. Use the transcription engine’s native segments (no forced fixed-length chunking)
+```
+
+</details>
