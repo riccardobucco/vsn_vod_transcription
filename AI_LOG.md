@@ -240,3 +240,30 @@ Follow instructions in [speckit.plan.prompt.md](.github/prompts/speckit.plan.pro
 ```
 
 </details>
+
+## Speckit Tasks: VOD Transcription Utility (Phase 2)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Generated a Phase 2 `tasks.md` implementation checklist from plan/spec/research/data-model/OpenAPI, grouped by user story (US1–US3) with setup/foundational/polish phases.
+- Ensured every task includes an explicit file path and marked parallelizable work with `[P]`.
+
+### Files Affected
+
+- `specs/001-vod-transcription-utility/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.tasks.prompt.md](.github/prompts/speckit.tasks.prompt.md).
+
+Break this down into tasks
+```
+
+</details>
