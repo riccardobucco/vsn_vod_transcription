@@ -497,3 +497,38 @@ Be thorough.
 ```
 
 </details>
+
+## Fix Tailwind CSS Not Rendering in Production
+
+**Model:** `Claude Opus 4.6`
+
+### Changelog
+
+- Added Tailwind CSS build (`npx tailwindcss …`) to the container startup command in `Dockerfile.app` — the image-layer CSS was being overwritten by the bind-mounted host volume which only contained a placeholder file.
+- Removed `:ro` (read-only) flag from the `./app` volume mount in `docker-compose.yml` so the startup Tailwind build can write the compiled CSS into the mounted directory.
+
+### Files Affected
+
+- `docker/Dockerfile.app`
+- `docker-compose.yml`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+I have a Docker Compose stack for a FastAPI + Celery + PostgreSQL + Redis + MinIO VOD transcription app. Tailwind CSS is not rendering.
+
+Please:
+
+1. Diagnose the issue: don't just fix the first error. Inspect all project files and look for any issues.
+2. Fix everything you find. Think about what will break next once the current error is resolved. Think about what will happen at runtime, not just at build time (e.g., check that CSS/static assets are actually served correctly).
+3. Rebuild and test. After each round of fixes, rebuild the Docker images (docker compose build), restart the stack (docker compose up -d), check the logs (docker compose logs), and verify the app is actually working end-to-end: the web UI loads with proper styling, file upload works, and background tasks execute successfully.
+4. Iterate until it works. Keep checking logs and fixing issues until the entire workflow runs without errors. If something requires manual action from me (like API keys), flag it clearly.
+
+Be thorough.
+```
+
+</details>

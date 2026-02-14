@@ -14,7 +14,7 @@ services:
       minio:
         condition: service_started
     volumes:
-      - ./app:/opt/app/app:ro
+      - ./app:/opt/app/app
       - ./migrations:/opt/app/migrations
     restart: unless-stopped
 

@@ -33,4 +33,4 @@ RUN npx tailwindcss -i app/static/app.css -o app/static/tailwind.css --minify
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "npx tailwindcss -i app/static/app.css -o app/static/tailwind.css --minify && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
