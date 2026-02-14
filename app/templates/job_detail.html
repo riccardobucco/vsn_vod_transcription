@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{{ job.source_label }} — VOD Transcription{% endblock %}
+
+{% block content %}
+<div class="min-h-full">
+    <nav class="bg-indigo-600">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="/" class="text-white hover:text-indigo-200">&larr; Dashboard</a>
+                    <h1 class="text-xl font-bold text-white">Job Details</h1>
+                </div>
+                <a href="/logout" class="text-sm text-white hover:text-indigo-200">Sign out</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Job info -->
+        <div class="mb-6 rounded-lg bg-white p-6 shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">{{ job.source_label }}</h2>
+                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                    {% if job.status.value == 'completed' %}bg-green-100 text-green-800
+                    {% elif job.status.value == 'failed' %}bg-red-100 text-red-800
+                    {% elif job.status.value == 'processing' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ job.status.value }}
+                </span>
+            </div>
+            <dl class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                <div>
+                    <dt class="text-gray-500">Source</dt>
+                    <dd class="font-medium text-gray-900">{{ job.source_type.value }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Created</dt>
+                    <dd class="font-medium text-gray-900">{{ job.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+                </div>
+                {% if job.duration_seconds %}
+                <div>
+                    <dt class="text-gray-500">Duration</dt>
+                    <dd class="font-medium text-gray-900">{{ (job.duration_seconds // 60) }}m {{ job.duration_seconds % 60 }}s</dd>
+                </div>
+                {% endif %}
+                {% if overall_confidence is not none %}
+                <div>
+                    <dt class="text-gray-500">Overall Confidence</dt>
+                    <dd class="font-medium text-gray-900">{{ "%.0f"|format(overall_confidence * 100) }}%</dd>
+                </div>
+                {% endif %}
+            </dl>
+            {% if job.failure_message %}
+            <div class="mt-4 rounded-md bg-red-50 p-3">
+                <p class="text-sm text-red-700">{{ job.failure_message }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if job.status.value == 'completed' %}
+        <!-- Export buttons -->
+        <div class="mb-6 flex gap-3">
+            <a href="/api/jobs/{{ job.id }}/export/txt"
+               class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                Download TXT
+            </a>
+            <a href="/api/jobs/{{ job.id }}/export/srt"
+               class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                Download SRT
+            </a>
+            <a href="/api/jobs/{{ job.id }}/export/vtt"
+               class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                Download VTT
+            </a>
+        </div>
+
+        <!-- Transcript segments -->
+        <div class="rounded-lg bg-white shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Transcript Segments</h2>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for seg in segments %}
+                <div class="px-6 py-3 flex gap-4">
+                    <div class="shrink-0 w-32 text-xs text-gray-500 font-mono pt-0.5">
+                        {{ "%02d:%02d:%02d.%03d"|format(seg.start_ms // 3600000, (seg.start_ms % 3600000) // 60000, (seg.start_ms % 60000) // 1000, seg.start_ms % 1000) }}
+                        &rarr;
+                        {{ "%02d:%02d:%02d.%03d"|format(seg.end_ms // 3600000, (seg.end_ms % 3600000) // 60000, (seg.end_ms % 60000) // 1000, seg.end_ms % 1000) }}
+                    </div>
+                    <div class="flex-1 text-sm text-gray-900">{{ seg.text }}</div>
+                    <div class="shrink-0 w-16 text-right">
+                        {% if seg.confidence is not none %}
+                        {% set conf_pct = (seg.confidence * 100)|int %}
+                        <span class="text-xs font-medium
+                            {% if conf_pct >= 80 %}text-green-600
+                            {% elif conf_pct >= 50 %}text-yellow-600
+                            {% else %}text-red-600{% endif %}">
+                            {{ conf_pct }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% elif job.status.value == 'processing' or job.status.value == 'queued' %}
+        <div class="rounded-lg bg-white p-12 shadow text-center">
+            <p class="text-gray-500">Job is {{ job.status.value }}. Refresh the page to check progress.</p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

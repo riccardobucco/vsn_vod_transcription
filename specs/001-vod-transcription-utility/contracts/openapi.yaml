@@ -8,7 +8,7 @@ info:
     This API is used by an SSR UI (Jinja2) and is also usable directly.
 servers:
   - url: https://vsn.riccardobucco.com
-  - url: http://localhost:8080
+  - url: http://localhost:7200
 
 tags:
   - name: Health

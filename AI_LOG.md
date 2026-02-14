@@ -298,3 +298,129 @@ Check tasks quality and consistency
 ```
 
 </details>
+
+## Implement VOD Transcription Utility (Full Stack)
+
+**Model:** `Claude Opus 4.6`
+
+### Changelog
+
+- Scaffolded the full project structure: `app/`, `worker/`, `migrations/`, `tests/`, `docker/`.
+- Created `pyproject.toml` with all runtime and dev dependencies (FastAPI, SQLAlchemy, Celery, Minio, OpenAI, etc.) and tooling config (ruff, mypy, pytest).
+- Created `docker-compose.yml` with all 7 services: app (port 7200), worker, beat, postgres, redis, minio, logto (port 7201).
+- Created Dockerfiles for app (with Node.js/Tailwind build step) and worker (with ffmpeg).
+- Implemented FastAPI entrypoint (`app/main.py`) with session middleware, static files, templates, request-id middleware, and all router mounts.
+- Implemented typed settings loader (`app/config.py`) with all env vars and defaults.
+- Implemented structured logging with `request_id`/`job_id` context vars (`app/logging.py`).
+- Created ORM models (`app/db/models.py`): `User`, `TranscriptionJob`, `TranscriptSegment` with indexes per data-model spec.
+- Created async DB session factory (`app/db/session.py`) and Alembic migration setup with initial migration (`001_init`).
+- Implemented Logto OIDC client (`app/auth/logto_client.py`) with discovery, authorize, token exchange, userinfo, and end-session.
+- Implemented server-side session store in Redis (`app/auth/session_store.py`).
+- Implemented auth routes (`app/auth/routes.py`): `/login`, `/auth/callback`, `/logout`.
+- Implemented auth dependencies (`app/auth/deps.py`): session guards for API (401) and SSR (redirect), `current_user` get-or-create.
+- Implemented MinIO storage wrapper (`app/services/storage_minio.py`): bucket ensure, put/get/delete.
+- Implemented OpenAI Whisper client (`app/services/openai_whisper.py`): verbose_json with segment timestamps, confidence derivation via exp(avg_logprob).
+- Implemented jobs query service (`app/services/jobs_service.py`): list, get, segments, duration-weighted overall confidence.
+- Implemented transcription orchestration (`app/services/transcription.py`): persist segments, mark failed.
+- Implemented export formatters (`app/services/exports.py`): TXT, SRT, VTT.
+- Implemented failure reason mapping (`app/services/failures.py`).
+- Implemented REST API endpoints: health (`GET /api/health`), jobs CRUD (`GET/POST /api/jobs`, `GET /api/jobs/{id}`, `GET /api/jobs/{id}/transcript`), exports (`GET /api/jobs/{id}/export/{format}`), metrics.
+- Implemented SSR routes: dashboard (`GET /`) and job detail (`GET /jobs/{id}`) with Tailwind-styled Jinja2 templates.
+- Implemented Celery worker pipeline (`worker/tasks.py`): download → ffprobe → ffmpeg audio extraction → Whisper transcribe → persist segments, with full error handling and failure codes.
+- Implemented media helpers: `ffprobe.py` (duration, audio detection), `ffmpeg.py` (mono 16kHz MP3 at 48kbps), `downloader.py` (SSRF protections, size limits).
+- Implemented daily retention cleanup Celery Beat task (30-day TTL).
+- Created 4 Jinja2 templates: `base.html`, `login.html`, `dashboard.html` (with upload + URL forms), `job_detail.html` (segments, confidence, export links).
+- Created Tailwind CSS setup (`package.json`, `tailwind.config.js`, `app.css`).
+- Created CI workflow (`.github/workflows/ci.yml`): ruff lint + format check + mypy + pytest.
+- Created `.gitignore`, `.dockerignore`, `.env.example`, `alembic.ini`, `README.md`.
+- Added 27 tests: OpenAPI schema validation, format allowlist, URL/SSRF validation, export formatters (TXT/SRT/VTT), structured logging policy, failure message policy, auth guard (401 without cookie), health endpoint (no auth).
+- All 27 tests pass, ruff lint clean, ruff format clean.
+- Marked all 64 tasks in `tasks.md` as completed.
+
+### Files Affected
+
+- `.gitignore`
+- `.dockerignore`
+- `.env.example`
+- `README.md`
+- `pyproject.toml`
+- `package.json`
+- `tailwind.config.js`
+- `alembic.ini`
+- `docker-compose.yml`
+- `docker/Dockerfile.app`
+- `docker/Dockerfile.worker`
+- `docker/init-logto-db.sh`
+- `.github/workflows/ci.yml`
+- `app/__init__.py`
+- `app/main.py`
+- `app/config.py`
+- `app/logging.py`
+- `app/metrics.py`
+- `app/db/__init__.py`
+- `app/db/session.py`
+- `app/db/models.py`
+- `app/api/__init__.py`
+- `app/api/errors.py`
+- `app/api/health.py`
+- `app/api/jobs.py`
+- `app/api/exports.py`
+- `app/api/metrics.py`
+- `app/auth/__init__.py`
+- `app/auth/logto_client.py`
+- `app/auth/session_store.py`
+- `app/auth/routes.py`
+- `app/auth/deps.py`
+- `app/services/__init__.py`
+- `app/services/storage_minio.py`
+- `app/services/openai_whisper.py`
+- `app/services/jobs_service.py`
+- `app/services/transcription.py`
+- `app/services/exports.py`
+- `app/services/failures.py`
+- `app/routes/__init__.py`
+- `app/routes/dashboard.py`
+- `app/routes/job_detail.py`
+- `app/static/app.css`
+- `app/static/tailwind.css`
+- `app/templates/base.html`
+- `app/templates/login.html`
+- `app/templates/dashboard.html`
+- `app/templates/job_detail.html`
+- `worker/__init__.py`
+- `worker/celery_app.py`
+- `worker/tasks.py`
+- `worker/media/__init__.py`
+- `worker/media/ffprobe.py`
+- `worker/media/ffmpeg.py`
+- `worker/media/downloader.py`
+- `migrations/env.py`
+- `migrations/script.py.mako`
+- `migrations/versions/001_init.py`
+- `tests/__init__.py`
+- `tests/contract/__init__.py`
+- `tests/contract/test_openapi_schema_validation.py`
+- `tests/integration/__init__.py`
+- `tests/integration/test_auth_guard.py`
+- `tests/unit/__init__.py`
+- `tests/unit/test_submission_validation.py`
+- `tests/unit/test_exports.py`
+- `tests/unit/test_logging_policy.py`
+- `specs/001-vod-transcription-utility/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.implement.prompt.md](.github/prompts/speckit.implement.prompt.md).
+
+Implement the feature.
+- The app should be exposed on port 7200 (vsn.riccardobucco.com)
+- Logto should be exposed on port 7201 (vsn-logto.riccardobucco.com)
+- Logto admin should be exposed on port 7202 (vsn-logto-admin.riccardobucco.com)
+```
+
+</details>

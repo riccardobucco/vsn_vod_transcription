@@ -1,0 +1,19 @@
+FROM python:3.13-slim
+
+WORKDIR /opt/app
+
+# Install system dependencies including ffmpeg
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir -e "."
+
+# Copy application code
+COPY app/ app/
+COPY worker/ worker/
+
+CMD ["celery", "-A", "worker.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
