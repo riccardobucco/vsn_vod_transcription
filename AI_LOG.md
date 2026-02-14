@@ -424,3 +424,37 @@ Implement the feature.
 ```
 
 </details>
+
+## Migrate from Self-Hosted Logto to Logto Cloud
+
+**Model:** `Claude Opus 4.6`
+
+### Changelog
+
+- Migrate from self-hosted Logto to Logto Cloud
+
+### Files Affected
+
+- `.env.example`
+- `README.md`
+- `app/auth/logto_client.py`
+- `app/config.py`
+- `docker-compose.yml`
+- `docker/init-logto-db.sh` (deleted)
+- `specs/001-vod-transcription-utility/plan.md`
+- `specs/001-vod-transcription-utility/quickstart.md`
+- `specs/001-vod-transcription-utility/research.md`
+- `specs/001-vod-transcription-utility/spec.md`
+- `specs/001-vod-transcription-utility/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Migrate from self-hosted Logto to Logto Cloud. Update all code, config, docker-compose, docs, and specs. Run tests before and after to ensure nothing breaks. Tell me what I need to set up on my end (account, keys, etc.).
+```
+
+</details>

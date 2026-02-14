@@ -9,7 +9,7 @@
 
 ### Session 2026-02-12
 
-- Q: What authentication method should the utility use? → A: App-managed login route that delegates authentication to Logto (OIDC) and establishes a secure session cookie; at least one pre-provisioned “Reviewer” identity (created in Logto; no self-service registration).
+- Q: What authentication method should the utility use? → A: App-managed login route that delegates authentication to Logto Cloud (OIDC) and establishes a secure session cookie; at least one pre-provisioned "Reviewer" identity (created in Logto Cloud Console; no self-service registration).
 - Q: What VOD duration should be explicitly supported in the initial release? → A: Up to 30 minutes.
 - Q: What input video formats should be supported initially? → A: MP4, MOV, MKV.
 - Q: What retention policy should apply to jobs and outputs? → A: Auto-delete after 30 days.
@@ -81,8 +81,8 @@ As a Reviewer, I want completed jobs to show time-coded transcript segments and 
 
 Functional requirements are considered satisfied when all acceptance scenarios in the User Scenarios & Testing section pass.
 
-- **FR-001**: System MUST require authentication to access the application via an application-managed login flow (may delegate to an OIDC provider such as Logto).
-- **FR-002**: System MUST provide at least one pre-provisioned "Reviewer" identity that can sign in without self-service registration (provisioned in Logto; configuration via environment variables).
+- **FR-001**: System MUST require authentication to access the application via an application-managed login flow (delegates to Logto Cloud as the OIDC provider).
+- **FR-002**: System MUST provide at least one pre-provisioned "Reviewer" identity that can sign in without self-service registration (provisioned in Logto Cloud Console).
 - **FR-002a**: After login, the system MUST maintain an authenticated session via a secure session cookie.
 - **FR-003**: System MUST present a dashboard after login that answers: (a) what jobs exist, (b) what state each job is in, and (c) how to submit a new job.
 - **FR-004**: Users MUST be able to submit a transcription job by uploading a supported video file from their computer.

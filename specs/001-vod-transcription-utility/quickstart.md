@@ -18,7 +18,8 @@ This document is written for reviewer-verifiable setup in <10 minutes once the s
 - `postgres`
 - `redis`
 - `minio`
-- `logto` (Logto OSS) *(or use Logto Cloud by pointing `LOGTO_ENDPOINT` at cloud and omitting the Logto container)*
+
+Authentication is handled by **Logto Cloud** (external SaaS) — no Logto container needed.
 
 ## Environment variables
 
@@ -36,8 +37,8 @@ Create a `.env` for Compose with (names are representative; final names should m
   - `OPENAI_API_KEY`
   - `OPENAI_TRANSCRIBE_MODEL` (default: `whisper-1`)
 
-- **Logto (OIDC)**
-  - `LOGTO_ENDPOINT` (e.g. `http://logto:3001` for OSS, or your cloud endpoint)
+- **Logto Cloud (OIDC)**
+  - `LOGTO_ENDPOINT` (e.g. `https://your-tenant.logto.app`)
   - `LOGTO_APP_ID`
   - `LOGTO_APP_SECRET`
   - `LOGTO_REDIRECT_URI` (e.g. `https://vsn.riccardobucco.com/auth/callback`)
@@ -50,19 +51,16 @@ Create a `.env` for Compose with (names are representative; final names should m
   - `REVIEWER_EMAIL` (optional)
   - `REVIEWER_PASSWORD`
 
-## Logto one-time setup (if self-hosting)
+## Logto Cloud setup (one-time)
 
-If you self-host Logto via Compose:
-
-1. Start core services: `docker compose up -d postgres redis minio logto`
-2. Visit the Logto Console URL (provided by Logto OSS) and create:
-   - A **Traditional Web** application for this web app.
-   - Redirect URIs:
-     - `https://vsn.riccardobucco.com/auth/callback`
-   - Post-logout redirect URIs:
-     - `https://vsn.riccardobucco.com/`
+1. Sign up at [logto.io](https://logto.io/) and create a tenant.
+2. In the Logto Cloud Console, create a **Traditional Web** application:
+   - Redirect URIs: `https://vsn.riccardobucco.com/auth/callback`
+   - Post-logout redirect URIs: `https://vsn.riccardobucco.com/`
    - Copy **App ID** and **App Secret** into `.env`.
-3. (Optional but recommended) Create a **Machine-to-machine** app with Management API permission `all`, then put its client id/secret in `.env` so the stack can auto-provision/update the Reviewer user.
+   - Note your tenant endpoint (e.g. `https://your-tenant.logto.app`) and set it as `LOGTO_ENDPOINT`.
+3. Create a Reviewer user account in the Logto Cloud Console (Users → Create User).
+4. (Optional) Create a **Machine-to-machine** app with Management API permission `all`, then put its client id/secret in `.env` to enable automated user provisioning.
 
 ## Run the stack
 
@@ -76,7 +74,7 @@ From repo root:
 
 1. Navigate to `https://vsn.riccardobucco.com/`.
 2. You should be redirected to the app login page.
-3. Click “Sign in” → redirected to Logto sign-in.
+3. Click "Sign in" → redirected to Logto Cloud sign-in.
 4. Sign in as the preconfigured Reviewer.
 5. On the dashboard:
    - Submit a job via file upload (MP4/MOV/MKV) and confirm it appears as `queued` or `processing`.

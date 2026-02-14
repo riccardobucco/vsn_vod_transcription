@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_TRANSCRIBE_MODEL: str = "whisper-1"
 
-    # Logto (OIDC)
-    LOGTO_ENDPOINT: str = "http://logto:3001"
+    # Logto Cloud (OIDC)
+    LOGTO_ENDPOINT: str = "https://your-tenant.logto.app"
     LOGTO_APP_ID: str = ""
     LOGTO_APP_SECRET: str = ""
     LOGTO_REDIRECT_URI: str = "https://vsn.riccardobucco.com/auth/callback"

@@ -1,4 +1,4 @@
-"""Logto OIDC client for authentication."""
+"""Logto Cloud OIDC client for authentication."""
 
 import secrets
 from dataclasses import dataclass

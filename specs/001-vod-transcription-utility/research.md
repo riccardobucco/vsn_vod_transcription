@@ -5,9 +5,9 @@
 
 ## Decisions
 
-### Authentication: Logto OIDC + app-managed session cookie
+### Authentication: Logto Cloud OIDC + app-managed session cookie
 
-- Decision: Use Logto (OSS or Cloud) as the Identity Provider via OIDC redirect flow. The FastAPI app provides an application-managed `/login` page (SSR) that initiates the redirect-based sign-in. The app maintains its own secure session cookie (session id only) and stores Logto token state server-side.
+- Decision: Use Logto Cloud as the Identity Provider via OIDC redirect flow. The FastAPI app provides an application-managed `/login` page (SSR) that initiates the redirect-based sign-in. The app maintains its own secure session cookie (session id only) and stores Logto token state server-side.
 - Rationale:
   - Meets spec requirement for an “application-managed login page” and “secure session cookie” without exposing OAuth tokens to the browser.
   - Aligns with the mandated stack (Logto) and standard OIDC best practice (redirect-based auth).
@@ -17,13 +17,12 @@
 
 ### Preconfigured “Reviewer” account
 
-- Decision: Provision a single Logto user (Reviewer) whose credentials are set via environment configuration *for the deployment*, but credentials are validated by Logto (not the app). The FastAPI app simply requires authenticated sessions.
+- Decision: Provision a single Logto user (Reviewer) whose credentials are set via the Logto Cloud Console, but credentials are validated by Logto Cloud (not the app). The FastAPI app simply requires authenticated sessions.
 - Rationale:
-  - Satisfies FR-002 (preconfigured Reviewer) while keeping password handling inside Logto.
+  - Satisfies FR-002 (preconfigured Reviewer) while keeping password handling inside Logto Cloud.
 - Implementation note:
-  - Fully automatic “first boot” provisioning is non-trivial because Logto Management API requires an M2M app/secret. We will support:
-    - **Recommended**: Provide `LOGTO_M2M_CLIENT_ID/SECRET` to allow a bootstrap step that creates/updates the Reviewer user via Management API.
-    - **Fallback**: One-time manual creation in Logto Console if M2M credentials are not provided.
+  - **Recommended**: Create the Reviewer user manually in the Logto Cloud Console (accounts are managed centrally in the cloud dashboard).
+  - **Optional**: Provide `LOGTO_M2M_CLIENT_ID/SECRET` to allow a bootstrap step that creates/updates the Reviewer user via the Logto Management API.
 
 ### Media ingestion & storage
 
@@ -83,8 +82,8 @@
 
 ## Key Risks / Mitigations
 
-- Risk: Logto provisioning complexity.
-  - Mitigation: Support manual bootstrap and optional automated bootstrap when M2M credentials are provided.
+- Risk: Logto Cloud account configuration.
+  - Mitigation: Logto Cloud Console provides a straightforward UI for creating applications and users. Optional automated bootstrap via M2M credentials is supported.
 - Risk: ffmpeg availability in worker containers.
   - Mitigation: Use an image that includes ffmpeg or install it in the worker Dockerfile; document as required.
 - Risk: URL ingestion SSRF and large downloads.

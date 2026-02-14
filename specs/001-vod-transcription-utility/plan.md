@@ -5,7 +5,7 @@
 
 ## Summary
 
-Deliver a private, authenticated web utility that lets a single “Reviewer” submit VODs (upload or direct URL) and later retrieve time-coded transcript segments with confidence indicators and downloads (TXT/SRT/VTT). The system runs on a single home server via Docker Compose and uses FastAPI (SSR via Jinja2), PostgreSQL, MinIO, Redis, Celery workers, Logto for auth, and the OpenAI Whisper API for transcription.
+Deliver a private, authenticated web utility that lets a single "Reviewer" submit VODs (upload or direct URL) and later retrieve time-coded transcript segments with confidence indicators and downloads (TXT/SRT/VTT). The system runs on a single home server via Docker Compose and uses FastAPI (SSR via Jinja2), PostgreSQL, MinIO, Redis, Celery workers, Logto Cloud for auth (OIDC), and the OpenAI Whisper API for transcription.
 
 Phase 0/1 artifacts:
 - Research decisions: specs/001-vod-transcription-utility/research.md
@@ -16,7 +16,7 @@ Phase 0/1 artifacts:
 ## Technical Context
 
 **Language/Version**: Python 3.13+  
-**Primary Dependencies**: FastAPI, Jinja2, TailwindCSS (build step), SQLAlchemy (or equivalent ORM), Alembic, Celery, Redis client, MinIO S3 client, Logto Python SDK, OpenAI Python SDK  
+**Primary Dependencies**: FastAPI, Jinja2, TailwindCSS (build step), SQLAlchemy (or equivalent ORM), Alembic, Celery, Redis client, MinIO S3 client, httpx (OIDC client for Logto Cloud), OpenAI Python SDK  
 **Storage**: PostgreSQL (jobs + segments + metadata), MinIO (video/audio objects; optional cached exports)  
 **Testing**: pytest (unit + API/contract validation; one end-to-end happy path gated by environment secrets)  
 **Target Platform**: Single Linux home server (Docker Compose), public static IP + domain; reverse proxy terminates TLS and routes `vsn.riccardobucco.com` to the app’s exposed local port

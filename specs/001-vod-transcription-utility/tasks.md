@@ -22,7 +22,7 @@
 
 - [X] T001 Create application skeleton directories in app/ and worker/ (app/, worker/, migrations/, tests/)
 - [X] T002 Initialize Python project metadata and dependencies in pyproject.toml (Python 3.13+, FastAPI, Jinja2, SQLAlchemy, Alembic, Celery, redis, minio, openai, httpx, pytest, openapi-spec-validator)
-- [X] T003 [P] Add Docker Compose skeleton services in docker-compose.yml (app, worker, beat, postgres, redis, minio, logto)
+- [X] T003 [P] Add Docker Compose skeleton services in docker-compose.yml (app, worker, beat, postgres, redis, minio)
 - [X] T004 [P] Create app container image definition in docker/Dockerfile.app
 - [X] T005 [P] Create worker/beat container image definition in docker/Dockerfile.worker
 - [X] T006 [P] Add environment variable template in .env.example (APP_BASE_URL, DATABASE_URL, REDIS_URL, MINIO_*, OPENAI_*, LOGTO_*)
@@ -52,8 +52,8 @@
 - [X] T018 Create initial Alembic migration in migrations/versions/001_init.py (tables + indexes)
 - [X] T019 Implement MinIO client wrapper in app/services/storage_minio.py (bucket ensure, put/get/delete by key)
 - [X] T020 Implement OpenAI Whisper client wrapper in app/services/openai_whisper.py (verbose_json segments, model whisper-1)
-- [X] T021 Implement auth/session storage in app/auth/session_store.py (server-side session id → Logto token state in Redis)
-- [X] T022 Implement Logto OIDC client in app/auth/logto_client.py (authorize URL, callback exchange, userinfo)
+- [X] T021 Implement auth/session storage in app/auth/session_store.py (server-side session id → Logto Cloud token state in Redis)
+- [X] T022 Implement Logto Cloud OIDC client in app/auth/logto_client.py (authorize URL, callback exchange, userinfo)
 - [X] T023 Implement auth routes in app/auth/routes.py (/login, /auth/callback, /logout)
 - [X] T024 Add auth dependency helpers in app/auth/deps.py (require_session; current_user creates/loads User row)
 - [X] T025 Implement health endpoint in app/api/health.py (GET /api/health, no auth)
@@ -146,7 +146,7 @@
 - [X] T053 [P] Implement retention cleanup task in worker/tasks.py (daily delete jobs older than 30 days + MinIO objects)
 - [X] T054 [P] Add Celery beat schedule in worker/celery_app.py (daily retention task)
 - [X] T055 Add logging policy regression tests in tests/unit/test_logging_policy.py and app/logging.py (assert info-level logs never include transcript segment text or user-provided VOD URL/filename; verify request_id and job_id are present when available)
-- [X] T056 [P] Add README.md verification flow (<10 minutes) (docker compose + Logto setup + submit job + download exports)
+- [X] T056 [P] Add README.md verification flow (<10 minutes) (docker compose + Logto Cloud setup + submit job + download exports)
 - [X] T057 Ensure OpenAPI contract matches implementation in app/api/jobs.py and app/api/exports.py (response fields, status codes)
 
 ---
