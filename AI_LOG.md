@@ -193,3 +193,50 @@ Follow instructions in [speckit.clarify.prompt.md](.github/prompts/speckit.clari
 ```
 
 </details>
+
+## Speckit Plan: VOD Transcription Utility (Phase 0–1)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Filled the implementation plan with concrete technical context, constitution gates, and an initial repo/service structure consistent with Docker Compose + FastAPI SSR.
+- Produced Phase 0/1 deliverables: research decisions, data model, OpenAPI contract-first API, and a quickstart guide aligned to the home-server + reverse-proxy deployment constraints.
+- Updated the GitHub Copilot agent context to reflect the chosen stack and plan outputs.
+
+### Files Affected
+
+- `.github/agents/copilot-instructions.md`
+- `specs/001-vod-transcription-utility/plan.md`
+- `specs/001-vod-transcription-utility/research.md`
+- `specs/001-vod-transcription-utility/data-model.md`
+- `specs/001-vod-transcription-utility/contracts/openapi.yaml`
+- `specs/001-vod-transcription-utility/quickstart.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.plan.prompt.md](.github/prompts/speckit.plan.prompt.md).
+
+# Project Context & Constraints
+
+- Deployment Environment: A single physical home server with a public static IP and domain (riccardobucco.com).
+- Ingress Strategy: An existing reverse proxy handles SSL/TLS termination and routes traffic for vsn.riccardobucco.com to the application's exposed local port.
+- Orchestration: Strictly Docker Compose. The entire stack (App, DB, Auth, Storage, Worker, etc.) must spin up with `docker compose up`.
+
+# Technology Stack Definition
+
+- Backend Framework: Python 3.13+ with FastAPI
+- Frontend Strategy: Server-Side Rendering (SSR) using Jinja2 templates, styling via TailwindCSS
+- Database: PostgreSQL
+- Authentication: Logto
+- Object Storage: MinIO
+- Async Processing: Celery (Broker: Redis)
+- Transcription Engine: public OpenAI Whisper API
+```
+
+</details>
