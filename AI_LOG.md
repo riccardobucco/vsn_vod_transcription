@@ -105,7 +105,7 @@ Incorporate these requirements into the constitution using the established templ
 <summary>Click to expand full prompt</summary>
 
 ```
-Follow instructions in [speckit.specify.prompt.md](file:///Users/rbucco/Workspace/Personal/vsn/vsn_vod_transcription_specify/.github/prompts/speckit.specify.prompt.md).
+Follow instructions in [speckit.specify.prompt.md](.github/prompts/speckit.specify.prompt.md).
 
 # Product Vision: The VOD Transcription Utility
 
@@ -183,7 +183,7 @@ A successful build means a user can log in, throw a video link at the system, cl
 <summary>Click to expand full prompt</summary>
 
 ```
-Follow instructions in [speckit.clarify.prompt.md](file:///Users/rbucco/Workspace/Personal/vsn/vsn_vod_transcription_clarify/.github/prompts/speckit.clarify.prompt.md).
+Follow instructions in [speckit.clarify.prompt.md](.github/prompts/speckit.clarify.prompt.md).
 
 1. Use an app-managed login with a single preconfigured Reviewer account
 2. Support up to 30 minutes initially
