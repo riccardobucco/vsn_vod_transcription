@@ -9,7 +9,7 @@
 
 ### Session 2026-02-12
 
-- Q: What authentication method should the utility use? → A: App login page + secure session cookie; one preconfigured “Reviewer” account (creds via env/config).
+- Q: What authentication method should the utility use? → A: App-managed login route that delegates authentication to Logto (OIDC) and establishes a secure session cookie; at least one pre-provisioned “Reviewer” identity (created in Logto; no self-service registration).
 - Q: What VOD duration should be explicitly supported in the initial release? → A: Up to 30 minutes.
 - Q: What input video formats should be supported initially? → A: MP4, MOV, MKV.
 - Q: What retention policy should apply to jobs and outputs? → A: Auto-delete after 30 days.
@@ -81,8 +81,8 @@ As a Reviewer, I want completed jobs to show time-coded transcript segments and 
 
 Functional requirements are considered satisfied when all acceptance scenarios in the User Scenarios & Testing section pass.
 
-- **FR-001**: System MUST require authentication to access the application via an application-managed login page.
-- **FR-002**: System MUST provide at least one pre-configured "Reviewer" persona that can sign in without self-service registration (credentials provided via environment/configuration).
+- **FR-001**: System MUST require authentication to access the application via an application-managed login flow (may delegate to an OIDC provider such as Logto).
+- **FR-002**: System MUST provide at least one pre-provisioned "Reviewer" identity that can sign in without self-service registration (provisioned in Logto; configuration via environment variables).
 - **FR-002a**: After login, the system MUST maintain an authenticated session via a secure session cookie.
 - **FR-003**: System MUST present a dashboard after login that answers: (a) what jobs exist, (b) what state each job is in, and (c) how to submit a new job.
 - **FR-004**: Users MUST be able to submit a transcription job by uploading a supported video file from their computer.
@@ -99,6 +99,10 @@ Functional requirements are considered satisfied when all acceptance scenarios i
 - **FR-012a**: Transcript segmentation MUST use the transcription engine’s native segments; the system MUST NOT force fixed-length chunking or sentence-based re-segmentation.
 - **FR-013**: Each time-coded segment MUST include the segment text.
 - **FR-014**: The system MUST provide a confidence indicator for transcription quality (at minimum per segment, and optionally an overall summary).
+  - Confidence representation MUST be:
+    - Per segment: a categorical `confidence_label` in {low, medium, high}
+    - Overall: an `overall_confidence_label` in {low, medium, high}
+  - Confidence labels MUST be deterministically derived from Whisper segment metadata (e.g., avg_logprob) using documented thresholds in the implementation.
 - **FR-015**: Users MUST be able to export and download the completed transcription as a plain text file (.txt).
 - **FR-016**: Users MUST be able to export and download the completed transcription as subtitle files in SRT (.srt) and WebVTT (.vtt).
 - **FR-017**: Users MUST be able to access completed outputs and exports after returning later (without resubmitting the original source).

@@ -21,7 +21,7 @@
 **Purpose**: Create the repo scaffolding, dependency manifests, and container entrypoints.
 
 - [ ] T001 Create application skeleton directories in app/ and worker/ (app/, worker/, migrations/, tests/)
-- [ ] T002 Initialize Python project metadata and dependencies in pyproject.toml (Python 3.13+, FastAPI, Jinja2, SQLAlchemy, Alembic, Celery, redis, minio, openai, httpx, pytest)
+- [ ] T002 Initialize Python project metadata and dependencies in pyproject.toml (Python 3.13+, FastAPI, Jinja2, SQLAlchemy, Alembic, Celery, redis, minio, openai, httpx, pytest, openapi-spec-validator)
 - [ ] T003 [P] Add Docker Compose skeleton services in docker-compose.yml (app, worker, beat, postgres, redis, minio, logto)
 - [ ] T004 [P] Create app container image definition in docker/Dockerfile.app
 - [ ] T005 [P] Create worker/beat container image definition in docker/Dockerfile.worker
@@ -31,6 +31,9 @@
 - [ ] T009 [P] Add Tailwind build setup in package.json (tailwindcss CLI) and tailwind.config.js
 - [ ] T010 [P] Add minimal base templates in app/templates/login.html and app/templates/dashboard.html
 - [ ] T011 [P] Add minimal static placeholders in app/static/app.css and app/static/tailwind.css
+- [ ] T058 [P] Add CI workflow in .github/workflows/ci.yml (run ruff + pytest on push/PR)
+- [ ] T059 [P] Add ruff config to pyproject.toml (lint policy + formatting)
+- [ ] T060 [P] Add mypy to pyproject.toml and CI (basic typecheck; permissive initially)
 
 ---
 
@@ -40,6 +43,8 @@
 
 - [ ] T012 Create typed settings loader in app/config.py (env vars, defaults, validation)
 - [ ] T013 Implement structured logging utilities in app/logging.py (request_id, job_id, no transcript text at info)
+- [ ] T065 [P] Add metrics instrumentation in app/metrics.py (throughput, failure rate, job latency, transcription duration)
+- [ ] T066 [P] Add metrics endpoint in app/api/metrics.py (GET /metrics; restrict to authenticated or internal use)
 - [ ] T014 [P] Add API error response helpers in app/api/errors.py (ErrorResponse shape + HTTPException mapping)
 - [ ] T015 Add DB engine/session setup in app/db/session.py (SQLAlchemy engine, sessionmaker)
 - [ ] T016 Add Alembic configuration in migrations/env.py and alembic.ini
@@ -66,7 +71,7 @@
 
 ### Tests (US1)
 
-- [ ] T027 [P] [US1] Validate OpenAPI file parses in tests/contract/test_openapi_valid.py using specs/001-vod-transcription-utility/contracts/openapi.yaml
+- [ ] T027 [P] [US1] Validate OpenAPI schema in tests/contract/test_openapi_schema_validation.py (use openapi-spec-validator against specs/001-vod-transcription-utility/contracts/openapi.yaml; fail if invalid)
 - [ ] T028 [P] [US1] Add API auth guard test for protected route in tests/integration/test_auth_guard.py (401 for /api/* without cookie)
 
 ### Implementation (US1)
@@ -116,8 +121,10 @@
 
 ### Tests (US3)
 
-- [ ] T045 [P] [US3] Add API test for GET /api/jobs/{job_id}/transcript in tests/integration/test_get_transcript.py
+- [ ] T045 [P] [US3] Add API test for GET /api/jobs/{job_id}/transcript in tests/integration/test_get_transcript.py (assert segments include timestamps + confidence; assert overall confidence summary present)
 - [ ] T046 [P] [US3] Add API test for exports (txt/srt/vtt) in tests/integration/test_exports.py (status 200; basic format markers)
+- [ ] T067 [P] [US3] Add end-to-end happy path in tests/integration/test_e2e_happy_path.py (submit URL job → completes → transcript shows segments+confidence → exports TXT/SRT/VTT; skip unless OPENAI_* present)
+- [ ] T068 [P] Add Celery test mode support in worker/celery_app.py (configurable eager mode OR docker-compose profile) so T067 can run deterministically
 
 ### Implementation (US3)
 
@@ -138,8 +145,8 @@
 
 - [ ] T053 [P] Implement retention cleanup task in worker/tasks.py (daily delete jobs older than 30 days + MinIO objects)
 - [ ] T054 [P] Add Celery beat schedule in worker/celery_app.py (daily retention task)
-- [ ] T055 Add safer logging guarantees in app/logging.py (never log transcript text; keep logs metadata-only)
-- [ ] T056 [P] Add quickstart verification notes to Candidate Assignment - VSN.md (docker compose + manual verification steps)
+- [ ] T055 Add logging policy regression tests in tests/unit/test_logging_policy.py and app/logging.py (assert info-level logs never include transcript segment text or user-provided VOD URL/filename; verify request_id and job_id are present when available)
+- [ ] T056 [P] Add README.md verification flow (<10 minutes) (docker compose + Logto setup + submit job + download exports)
 - [ ] T057 Ensure OpenAPI contract matches implementation in app/api/jobs.py and app/api/exports.py (response fields, status codes)
 
 ---

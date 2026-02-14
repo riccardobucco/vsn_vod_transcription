@@ -267,3 +267,34 @@ Break this down into tasks
 ```
 
 </details>
+
+## Tasks Consistency Fixes (Contract + E2E + Confidence)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Upgraded contract testing from “OpenAPI parses” to real OpenAPI schema validation using `openapi-spec-validator`.
+- Added constitution-required automated coverage gaps: an end-to-end happy-path integration test and deterministic Celery test mode support.
+- Made “confidence indicator” requirements testable by defining confidence labels in the spec and strengthening transcript API tests to assert confidence fields.
+- Cleaned up implementation plan by removing leftover placeholder “ACTION REQUIRED” comment block.
+
+### Files Affected
+
+- `specs/001-vod-transcription-utility/plan.md`
+- `specs/001-vod-transcription-utility/spec.md`
+- `specs/001-vod-transcription-utility/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.analyze.prompt.md](.github/prompts/speckit.analyze.prompt.md).
+
+Check tasks quality and consistency
+```
+
+</details>
