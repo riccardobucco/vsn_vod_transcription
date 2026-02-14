@@ -10,7 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy and install Python dependencies
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e "."
+RUN mkdir -p app worker && \
+    touch app/__init__.py worker/__init__.py && \
+    pip install --no-cache-dir -e "."
 
 # Copy application code
 COPY app/ app/

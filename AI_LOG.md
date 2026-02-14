@@ -458,3 +458,42 @@ Migrate from self-hosted Logto to Logto Cloud. Update all code, config, docker-c
 ```
 
 </details>
+
+## Fix Docker Compose Stack Startup & Runtime Errors
+
+**Model:** `Claude Opus 4.6`
+
+### Changelog
+
+- Moved `dependencies` from `[tool.hatch.build.targets.wheel]` to `[project]` in `pyproject.toml` so pip actually installs runtime dependencies (alembic, celery, etc.).
+- Fixed Dockerfiles (`Dockerfile.app`, `Dockerfile.worker`) to create stub `app/` and `worker/` directories before `pip install -e .` so hatchling can register editable packages during the build.
+- Added `psycopg2-binary>=2.9,<3` to project dependencies — the Celery worker uses a sync SQLAlchemy engine with the psycopg2 dialect, but only `asyncpg` was declared.
+- Imported `celery_app` in `worker/tasks.py` to ensure the Redis-configured Celery app is current when `@shared_task` decorators bind — without this, the app container fell back to a default AMQP broker (RabbitMQ on port 5672) instead of Redis.
+
+### Files Affected
+
+- `pyproject.toml`
+- `docker/Dockerfile.app`
+- `docker/Dockerfile.worker`
+- `worker/tasks.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+I have a Docker Compose stack for a FastAPI + Celery + PostgreSQL + Redis + MinIO VOD transcription app. I ran `docker compose up` but it's failing: I see `alembic not found` in the logs.
+
+Please:
+
+1. Diagnose all issues: don't just fix the first error. Inspect all project files (pyproject.toml, Dockerfiles, docker-compose.yml, Python source files) and look for any misconfigurations, missing dependencies, build order problems, incorrect imports, or anything else that would prevent the stack from running correctly.
+2. Fix everything you find. Think about what will break next once the current error is resolved.
+3. Rebuild and test. After each round of fixes, rebuild the Docker images (docker compose build), restart the stack (docker compose up -d), check the logs (docker compose logs), and verify the app is actually working end-to-end: the web UI loads, file upload works, and background tasks execute successfully.
+4. Iterate until it works. Keep checking logs and fixing issues until the entire workflow runs without errors. If something requires manual action from me (like API keys), flag it clearly.
+
+Be thorough.
+```
+
+</details>

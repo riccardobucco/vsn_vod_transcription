@@ -7,9 +7,6 @@ name = "vsn-vod-transcription"
 version = "0.1.0"
 description = "VOD Transcription Utility"
 requires-python = ">=3.13"
-
-[tool.hatch.build.targets.wheel]
-packages = ["app", "worker"]
 dependencies = [
     "fastapi[standard]>=0.115,<1",
     "uvicorn[standard]>=0.34,<1",
@@ -17,6 +14,7 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0,<3",
     "alembic>=1.14,<2",
     "asyncpg>=0.30,<1",
+    "psycopg2-binary>=2.9,<3",
     "celery[redis]>=5.4,<6",
     "redis>=5.2,<6",
     "minio>=7.2,<8",
@@ -27,6 +25,9 @@ dependencies = [
     "pydantic>=2.10,<3",
     "pydantic-settings>=2.7,<3",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app", "worker"]
 
 [project.optional-dependencies]
 dev = [

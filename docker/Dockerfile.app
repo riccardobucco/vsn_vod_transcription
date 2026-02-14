@@ -14,7 +14,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 
 # Copy and install Python dependencies
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[dev]"
+RUN mkdir -p app worker && \
+    touch app/__init__.py worker/__init__.py && \
+    pip install --no-cache-dir -e ".[dev]"
 
 # Copy and install Node dependencies (Tailwind)
 COPY package.json tailwind.config.js ./
