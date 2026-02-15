@@ -37,7 +37,7 @@ async def load_session(session_id: str) -> dict[str, Any] | None:
     raw = await r.get(key)
     if raw is None:
         return None
-    return json.loads(raw)
+    return dict(json.loads(raw))
 
 
 async def delete_session(session_id: str) -> None:

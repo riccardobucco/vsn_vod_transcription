@@ -120,7 +120,7 @@ async def get_userinfo(access_token: str) -> UserInfo:
 async def get_end_session_url(id_token: str | None = None) -> str:
     """Build the end-session (logout) URL."""
     config = await _discover_oidc()
-    end_session_endpoint = config.get("end_session_endpoint", f"{settings.LOGTO_ENDPOINT}/oidc/session/end")
+    end_session_endpoint: str = config.get("end_session_endpoint", f"{settings.LOGTO_ENDPOINT}/oidc/session/end")
 
     params: dict[str, str] = {}
     if id_token:

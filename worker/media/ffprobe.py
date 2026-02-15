@@ -24,7 +24,7 @@ def probe_media(file_path: str) -> dict:
     if result.returncode != 0:
         logger.warning("ffprobe failed: %s", result.stderr[:500])
         raise RuntimeError(f"ffprobe failed: {result.stderr[:200]}")
-    return json.loads(result.stdout)
+    return dict(json.loads(result.stdout))
 
 
 def get_duration_seconds(file_path: str) -> int | None:

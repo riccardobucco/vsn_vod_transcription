@@ -3,6 +3,7 @@
 import time
 from collections import defaultdict
 from threading import Lock
+from typing import Any
 
 _lock = Lock()
 _counters: dict[str, int] = defaultdict(int)
@@ -19,9 +20,9 @@ def observe(name: str, value: float) -> None:
         _histograms[name].append(value)
 
 
-def get_metrics() -> dict:
+def get_metrics() -> dict[str, Any]:
     with _lock:
-        result = {
+        result: dict[str, Any] = {
             "counters": dict(_counters),
             "histograms": {},
         }
