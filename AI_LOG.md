@@ -593,7 +593,7 @@ Be thorough.
 <summary>Click to expand full prompt</summary>
 
 ```
-Follow instructions in speckit.specify.prompt.md.
+Follow instructions in [speckit.specify.prompt.md](.github/prompts/speckit.specify.prompt.md).
 
 # Product Goal
 
