@@ -775,3 +775,27 @@ Break this down into tasks
 ```
 
 </details>
+
+## Tasks Consistency Fixes
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Added phase 8 (Automated coverage for SSR UX changes and contract validation)
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.analyze.prompt.md](.github/prompts/speckit.analyze.prompt.md).
+```
+
+</details>

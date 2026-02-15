@@ -8,7 +8,7 @@ description: "Task list for Dashboard Submission UX implementation"
 **Input**: Design documents from `/specs/002-dashboard-submission-ux/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: Not requested in the feature spec; no test tasks included.
+**Tests**: Required per constitution; see Phase 8 for unit/integration/contract coverage and end-to-end happy path.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -107,6 +107,20 @@ description: "Task list for Dashboard Submission UX implementation"
 
 - [ ] T016 [P] Verify SSR route behavior matches specs/002-dashboard-submission-ux/contracts/openapi.yaml and update the contract if needed
 - [ ] T017 Run the quickstart verification checklist in specs/002-dashboard-submission-ux/quickstart.md and note any follow-up fixes
+- [ ] T024 Update README (and/or product docs) to describe the new SSR submission UX and error/not-found pages
+
+---
+
+## Phase 8: Tests (Required by Constitution)
+
+**Purpose**: Automated coverage for SSR UX changes and contract validation
+
+- [ ] T018 Add unit tests for flash helpers in tests/unit/test_flash.py
+- [ ] T019 Add integration tests for SSR submission PRG confirmation (upload + URL) in tests/integration/test_dashboard_submission_ssr.py
+- [ ] T020 Add integration tests for friendly error page on invalid upload/URL in tests/integration/test_submission_error_ssr.py
+- [ ] T021 Add integration tests for job-not-found 404 (malformed + missing) in tests/integration/test_job_detail_404.py
+- [ ] T022 Add contract/schema validation test for specs/002-dashboard-submission-ux/contracts/openapi.yaml in tests/contract/test_dashboard_submission_contract.py
+- [ ] T023 Add end-to-end happy path test for dashboard submit → confirmation render in tests/integration/test_dashboard_happy_path.py
 
 ---
 
