@@ -18,8 +18,9 @@ from app.metrics import Timer, inc
 from app.services.failures import get_failure_message
 from celery import shared_task
 from sqlalchemy import create_engine, select
-from worker.celery_app import celery_app as _celery_app  # noqa: F401 — ensure app is current
 from sqlalchemy.orm import Session, sessionmaker
+
+from worker.celery_app import celery_app as _celery_app  # noqa: F401 — ensure app is current
 
 logger = get_logger(__name__)
 
