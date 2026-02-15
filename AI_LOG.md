@@ -775,29 +775,3 @@ Break this down into tasks
 ```
 
 </details>
-
-## Tasks Consistency Fixes
-
-**Model:** `Gemini 3 Pro (Preview)`
-
-### Changelog
-
-- Added task T002b to explicitly create and link app/static/app.js in Phase 1.
-- Clarified T005 to reflect extending existing job service logic rather than setting it up from scratch.
-- Updated T028 to explicitly verify the <0.5s immediate upload feedback constraint.
-
-### Files Affected
-
-- `specs/002-dashboard-submission-ux/tasks.md`
-
-### Prompt / Context
-
-<details>
-
-<summary>Click to expand full prompt</summary>
-
-```
-Follow instructions in [speckit.analyze.prompt.md](.github/prompts/speckit.analyze.prompt.md).
-```
-
-</details>
