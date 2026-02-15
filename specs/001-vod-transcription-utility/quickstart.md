@@ -79,6 +79,10 @@ From repo root:
 5. On the dashboard:
    - Submit a job via file upload (MP4/MOV/MKV) and confirm it appears as `queued` or `processing`.
    - Submit a job via direct URL and confirm it appears.
+     - Sample direct MP4 URLs:
+       - Short: [podcast_refugee2.mp4](https://archive.org/download/RefugeeLife2Alhaphis/podcast_refugee2.mp4)
+       - Longer: [CityManagerSearchMeeting_3172022.mp4](https://archive.org/download/city-manager-search-committee-meeting-march-17-2022/1608-1%20CityManagerSearchMeeting_3172022.mp4)
+       - Very large (may fail with size/timeouts depending on environment): [Stephan Lopes.mp4](https://dn710807.ca.archive.org/0/items/StephanLopes/Stephan%20Lopes.mp4)
 6. Wait for completion and open job details:
    - Confirm time-coded segments are shown.
    - Confirm per-segment confidence indicator is shown.

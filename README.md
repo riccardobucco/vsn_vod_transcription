@@ -61,6 +61,14 @@ A private, authenticated web utility for transcribing VODs (Video On Demand) wit
 5. View segments with timestamps and confidence indicators
 6. Download exports: TXT, SRT, or VTT
 
+### Sample test videos
+
+If you want a quick URL-based test without uploading a file, these direct MP4 links contain people speaking:
+
+- Short: [podcast_refugee2.mp4](https://archive.org/download/RefugeeLife2Alhaphis/podcast_refugee2.mp4)
+- Longer: [CityManagerSearchMeeting_3172022.mp4](https://archive.org/download/city-manager-search-committee-meeting-march-17-2022/1608-1%20CityManagerSearchMeeting_3172022.mp4)
+- Very large (may fail with size/timeouts depending on environment): [Stephan Lopes.mp4](https://dn710807.ca.archive.org/0/items/StephanLopes/Stephan%20Lopes.mp4)
+
 ## Development
 
 ```bash
