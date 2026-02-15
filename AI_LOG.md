@@ -569,3 +569,115 @@ Be thorough.
 ```
 
 </details>
+
+## Speckit Specify: Dashboard Submission UX (Confirmation/Error/Not Found + Upload Feedback)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Created a complete, testable feature specification for improving the dashboard job submission UX so users never land on raw JSON.
+- Defined confirmation, friendly error, and job-not-found page behavior with prioritized user stories, acceptance scenarios, edge cases, functional requirements, entities, and measurable success criteria.
+- Added a spec quality checklist and marked it complete after validation.
+- Corrected feature numbering by renaming the feature branch/spec folder from `001-*` to `002-*` and updating references.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/spec.md`
+- `specs/002-dashboard-submission-ux/checklists/requirements.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in speckit.specify.prompt.md.
+
+# Product Goal
+
+Right now, when a user submits an upload from the dashboard, the browser lands on raw JSON. I want a better user experience: when the user submits a job, they should see a clear confirmation page; when something goes wrong, they should see a human-friendly error page; and when a job URL is invalid or missing, the user should see a proper “not found” page instead of a validation blob.
+
+# Why (Motivation)
+
+This tool is used by non-technical stakeholders. The core value proposition is “drop a video, get a transcription later,” not “debug HTTP responses.” The interface must communicate:
+
+- “We received your file.”
+- “Your job is queued/processing.”
+- “Here’s where to check status.”
+- “If something fails, here’s what happened and what to do next.”
+
+# What To Build (UX Requirements)
+
+## Submission Confirmation Page (Upload + URL)
+
+When the user submits a transcription job from the dashboard (either by uploading a file or pasting a direct video URL), the app must show a confirmation page instead of raw JSON.
+
+The confirmation page should:
+
+- Clearly state that the job was accepted and has started (typically “Queued”).
+- Show the submitted item label (e.g., filename or derived label).
+- Include two clear actions:
+  - “Back to dashboard”
+  - “View job details” (link to the existing job details page)
+- Keep the overall look consistent with the existing site (same header/nav, same minimal style).
+
+## Friendly Error Page (Submission Errors)
+
+If job creation fails from the dashboard flow (example: unsupported file type), show a friendly error page instead of a JSON error payload.
+
+The error page should:
+
+- Use plain language (e.g., “This file type isn’t supported yet.”).
+- Show the specific reason in a small “Details” area (e.g., “Allowed: MP4, MOV, MKV”).
+- Provide a single obvious recovery action (“Back to dashboard”)
+- Avoid technical noise (no stack traces, no JSON blobs).
+
+This should apply at minimum to:
+
+- Unsupported file format
+- File too large (if enforced)
+
+## Nice “Job Not Found / Invalid Link” Page
+
+If a user opens a job page that doesn’t exist, they should see a real page (not JSON).
+
+Also: if the user visits a job URL with an invalid job identifier (e.g., malformed ID), they should still see a friendly page (not a parsing/validation dump).
+
+This page should:
+
+- Use a clear title like “Job not found”.
+- Explain briefly: “This job doesn’t exist, or the link is invalid.”
+- Offer navigation: “Back to dashboard”
+
+No additional features (no search, no advanced troubleshooting). Keep it simple.
+
+## Upload Progress / Feedback While Submitting Large Files
+
+When a user clicks “Upload & Transcribe,” large uploads currently feel like the app is frozen. I want immediate feedback.
+
+During upload submission, the dashboard should show:
+
+- A visible “Uploading…” state immediately after the user submits
+- A progress indicator if possible (percentage/progress bar). If exact progress isn’t available, show an indeterminate progress indicator.
+- The submit button should be disabled while uploading to prevent double submits.
+- If the upload fails (network error, server rejects it), the user should land on the friendly error page described above.
+- This is only about the upload step (getting the file to the server). It is not about showing transcription progress (queued/processing/completed is already communicated elsewhere).
+
+# Success Criteria (Acceptance)
+
+- Submitting an upload from the dashboard never results in raw JSON being shown in the browser.
+- Submitting a URL from the dashboard never results in raw JSON/alert-only UX; it shows the confirmation page on success and the friendly error page on failure.
+- Visiting a non-existent or invalid job URL shows a friendly “Job not found” page.
+- Clicking “Upload & Transcribe” provides immediate upload feedback (progress or at least an uploading state) and prevents duplicate submissions.
+
+# Non-Goals (Keep Scope Tight)
+
+- No new pages beyond: confirmation, error, job-not-found.
+- No redesign of the dashboard or job details page.
+- No new job states, filters, admin features, or extra UI complexity.
+- Do not add unrelated improvements.
+```
+
+</details>
