@@ -18,6 +18,7 @@ description: "Task list for Dashboard Submission UX feature implementation"
 
 - [ ] T001 Create SSR submission endpoints in app/routes/dashboard.py
 - [ ] T002 Initialize TailwindCSS build step in tailwind.config.js
+- [ ] T002b Create app/static/app.js and link in app/templates/base.html
 - [ ] T003 [P] Configure pytest for contract/integration/unit tests in tests/
 - [ ] T004 [P] Setup Redis session/flash storage in app/auth/session_store.py
 
@@ -27,7 +28,7 @@ description: "Task list for Dashboard Submission UX feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Setup job creation logic for SSR endpoints in app/services/jobs_service.py
+- [ ] T005 Extend job creation logic to support SSR inputs in app/services/jobs_service.py
 - [ ] T006 [P] Ensure TranscriptionJob model supports required fields in app/db/models.py
 - [ ] T007 [P] Add error handling for SSR routes in app/api/errors.py
 - [ ] T008 Configure session flash consumption logic in app/auth/session_store.py
@@ -100,7 +101,7 @@ description: "Task list for Dashboard Submission UX feature implementation"
 
 - [ ] T026 [P] [US4] Add JS upload interception and progress logic in app/static/app.js
 - [ ] T027 [US4] Update dashboard.html to show uploading/progress indicator and disable submit controls
-- [ ] T028 [US4] Add integration test for upload feedback in tests/integration/test_dashboard_upload_feedback.py
+- [ ] T028 [US4] Add integration test for upload feedback (verify <0.5s "Uploading..." state) in tests/integration/test_dashboard_upload_feedback.py
 
 **Checkpoint**: All user stories should now be independently functional
 
