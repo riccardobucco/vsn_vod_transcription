@@ -14,7 +14,7 @@ def test_dashboard_submission_openapi_is_valid():
     if not spec_path.exists():
         pytest.skip("Dashboard submission OpenAPI spec not found")
 
-    import yaml
+    import yaml  # type: ignore[import-untyped]
 
     with open(spec_path) as f:
         spec_dict = yaml.safe_load(f)

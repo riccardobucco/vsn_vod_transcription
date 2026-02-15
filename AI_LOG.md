@@ -845,3 +845,33 @@ Follow instructions in [speckit.implement.prompt.md](.github/prompts/speckit.imp
 ```
 
 </details>
+
+## Fix Upload Submission Error and Test Typing
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Adjusted dashboard upload JS to build FormData before disabling inputs and handled 200 vs 303 responses; removed redundant confirmation link.
+- Added typing improvements in test helpers (typed dicts, return types, casts) for flash/session and dashboard SSR tests.
+- Marked yaml imports as untyped to satisfy type checking in OpenAPI contract tests.
+
+### Files Affected
+
+- `app/templates/dashboard.html`
+- `tests/contract/test_dashboard_submission_contract.py`
+- `tests/contract/test_openapi_schema_validation.py`
+- `tests/integration/test_dashboard_submission_ssr.py`
+- `tests/unit/test_flash.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+I’m seeing an upload error (“A file is required”) after submitting a video, plus some type-checking failures in tests (yaml import typing, missing type annotations in test helpers). Please debug and fix the upload flow and resolve the typing issues. Also clean up any redundant dashboard confirmation UI if you spot it.
+```
+
+</details>

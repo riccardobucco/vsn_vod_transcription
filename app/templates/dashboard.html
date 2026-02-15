@@ -34,9 +34,6 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="/" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        Back to dashboard
-                    </a>
                     <a href="/jobs/{{ confirmation.job_id }}" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                         View job details
                     </a>
@@ -211,12 +208,11 @@
 
         event.preventDefault();
         inFlight = true;
+        const formData = new FormData(uploadForm);
         setDisabled(true);
         statusBox.classList.remove('hidden');
         statusText.textContent = 'Uploading...';
         resetProgress();
-
-        const formData = new FormData(uploadForm);
         const xhr = new XMLHttpRequest();
         xhr.open('POST', uploadForm.action, true);
 
@@ -234,8 +230,20 @@
         };
 
         xhr.onload = () => {
-            if (xhr.status === 303 || xhr.status === 200) {
-                const redirectUrl = xhr.getResponseHeader('Location') || xhr.responseURL || '/';
+            if (xhr.status === 303) {
+                const redirectUrl = xhr.getResponseHeader('Location') || '/';
+                window.location = redirectUrl;
+                return;
+            }
+            if (xhr.status === 200) {
+                const contentType = xhr.getResponseHeader('Content-Type') || '';
+                if (contentType.includes('text/html') && xhr.responseText) {
+                    document.open();
+                    document.write(xhr.responseText);
+                    document.close();
+                    return;
+                }
+                const redirectUrl = xhr.responseURL || '/';
                 window.location = redirectUrl;
                 return;
             }

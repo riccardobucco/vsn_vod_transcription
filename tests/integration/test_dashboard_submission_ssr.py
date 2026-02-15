@@ -2,6 +2,7 @@
 
 import uuid
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 from app.db.models import JobStatus
@@ -14,7 +15,7 @@ def anyio_backend():
     return "asyncio"
 
 
-def _install_common_mocks(monkeypatch, stored_flash):
+def _install_common_mocks(monkeypatch, stored_flash: dict[str, dict[str, Any]]):
     from app.routes import dashboard, submissions
 
     async def fake_get_session_data(request):
@@ -53,7 +54,7 @@ async def test_submit_url_prg_confirmation(monkeypatch):
     from app.main import app
     from app.routes import submissions
 
-    stored_flash = {}
+    stored_flash: dict[str, dict[str, Any]] = {}
     _install_common_mocks(monkeypatch, stored_flash)
     _override_db(app)
 
@@ -84,7 +85,7 @@ async def test_submit_upload_prg_confirmation(monkeypatch):
     from app.main import app
     from app.routes import submissions
 
-    stored_flash = {}
+    stored_flash: dict[str, dict[str, Any]] = {}
     _install_common_mocks(monkeypatch, stored_flash)
     _override_db(app)
 
