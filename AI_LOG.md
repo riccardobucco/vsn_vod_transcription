@@ -715,3 +715,34 @@ Follow instructions in [speckit.clarify.prompt.md](.github/prompts/speckit.clari
 ```
 
 </details>
+
+## Speckit Plan: Dashboard Submission UX (Phase 0–1)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Ran Speckit plan setup for `002-dashboard-submission-ux` and filled the implementation plan with repo-specific technical context and constitution gates.
+- Generated Phase 0/1 planning artifacts: research decisions, session/flash data model notes, minimal SSR route contract, and reviewer quickstart steps.
+- Updated Copilot agent context to include the 002 feature stack signals.
+
+### Files Affected
+
+- `.github/agents/copilot-instructions.md`
+- `specs/002-dashboard-submission-ux/plan.md`
+- `specs/002-dashboard-submission-ux/research.md`
+- `specs/002-dashboard-submission-ux/data-model.md`
+- `specs/002-dashboard-submission-ux/contracts/openapi.yaml`
+- `specs/002-dashboard-submission-ux/quickstart.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.plan.prompt.md](.github/prompts/speckit.plan.prompt.md).
+```
+
+</details>
