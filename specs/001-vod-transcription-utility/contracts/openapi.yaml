@@ -1,0 +1,316 @@
+openapi: 3.0.3
+info:
+  title: VSN VOD Transcription Utility API
+  version: 0.1.0
+  description: |
+    Contract-first REST API for VOD transcription jobs.
+
+    This API is used by an SSR UI (Jinja2) and is also usable directly.
+servers:
+  - url: https://vsn.riccardobucco.com
+  - url: http://localhost:7200
+
+tags:
+  - name: Health
+  - name: Jobs
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: vsn_session
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: validation_error
+        message:
+          type: string
+          example: Unsupported video format.
+        request_id:
+          type: string
+          nullable: true
+
+    JobStatus:
+      type: string
+      enum: [queued, processing, completed, failed]
+
+    JobSourceType:
+      type: string
+      enum: [upload, url]
+
+    TranscriptionJob:
+      type: object
+      required:
+        - id
+        - source_type
+        - source_label
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        source_type:
+          $ref: '#/components/schemas/JobSourceType'
+        source_label:
+          type: string
+        source_url:
+          type: string
+          format: uri
+          nullable: true
+        duration_seconds:
+          type: integer
+          nullable: true
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        failure_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        overall_confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          nullable: true
+
+    CreateJobFromUrlRequest:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+        label:
+          type: string
+          nullable: true
+
+    TranscriptSegment:
+      type: object
+      required: [segment_index, start_ms, end_ms, text]
+      properties:
+        segment_index:
+          type: integer
+          minimum: 0
+        start_ms:
+          type: integer
+          minimum: 0
+        end_ms:
+          type: integer
+          minimum: 0
+        text:
+          type: string
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          nullable: true
+
+    TranscriptResponse:
+      type: object
+      required: [job_id, segments]
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranscriptSegment'
+
+  responses:
+    Unauthorized:
+      description: Not authenticated.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+security:
+  - cookieAuth: []
+
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      security: []
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/jobs:
+    get:
+      tags: [Jobs]
+      summary: List jobs (most recent first)
+      responses:
+        '200':
+          description: A list of jobs.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jobs]
+                properties:
+                  jobs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TranscriptionJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Jobs]
+      summary: Create a transcription job
+      description: |
+        Create a job either by uploading a file (multipart/form-data) or by providing a direct downloadable URL (application/json).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobFromUrlRequest'
+      responses:
+        '201':
+          description: Job created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/jobs/{job_id}:
+    get:
+      tags: [Jobs]
+      summary: Get job by id
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/jobs/{job_id}/transcript:
+    get:
+      tags: [Jobs]
+      summary: Get transcript segments for a job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transcript segments.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/jobs/{job_id}/export/{format}:
+    get:
+      tags: [Jobs]
+      summary: Download transcript export
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [txt, srt, vtt]
+      responses:
+        '200':
+          description: Export file contents.
+          content:
+            text/plain:
+              schema:
+                type: string
+            text/vtt:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'

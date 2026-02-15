@@ -1,50 +1,78 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# VOD Transcription Web App Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Transcription Is a Verifiable Artifact
+Transcription output must be reproducible and auditable:
+- Persist the raw transcript text plus basic provenance (source media identifier, transcription model/service identifier, language, created_at).
+- Preserve timing information when available (segments with start/end times).
+- Store enough metadata to explain “what produced this transcript” without exposing secrets.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Data Minimization by Default
+Handle media and user data conservatively:
+- Only collect what is needed to transcribe and present results.
+- Avoid storing raw media unless required; if stored, set explicit retention windows.
+- Never log transcript text or user-provided content at info level; keep logs metadata-only.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Reliability Over Cleverness
+Transcription must be resilient to long-running operations and failures:
+- Jobs are asynchronous and resumable (safe retries; idempotent job creation where feasible).
+- Surface clear job states and stable job identifiers.
+	- Required state machine: `queued → processing → completed | failed`
+- Failures must be actionable (error codes/messages suitable for user display and support).
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Contract-First API
+The web app’s core capabilities must be accessible via stable API contracts:
+- Define request/response schemas for job submission, status polling, and transcript retrieval.
+- Job creation must support either multipart upload or a JSON body containing an HTTP(S) VOD URL reference.
+- Export must guarantee at minimum `txt` and `srt` (or `vtt`).
+- Backwards compatibility is the default; breaking changes require versioning.
+- Minimum automated coverage includes schema validation + at least one end-to-end happy path.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Observability and Simplicity
+Keep the system diagnosable and minimal:
+- Structured logs include correlation IDs (request_id, job_id) and timings.
+- Track basic metrics: job throughput, job latency, failure rate, transcription duration.
+- Prefer straightforward implementations; introduce new infrastructure only when justified.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Stack (Minimum Requirements)
+- API: REST
+- Backend runtime: Python + FastAPI
+- Database: Postgres
+- Background processing: required (queue/worker pattern); Celery/RQ or equivalent.
+- Storage for uploaded media: S3-compatible object storage.
+- Transcription engine: Whisper API (must be real, no mocked transcription).
+- Frontend: minimal UI; must support job creation, status, and transcript viewing.
+- Configuration: all secrets and provider credentials via environment variables (never committed).
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Security & Privacy
+- Transport: HTTPS only.
+- Authentication/authorization required for any non-public media, job creation, and transcript access.
+- Secrets (API keys, tokens) must not be committed; use environment configuration.
+- Storage encryption at rest where supported by the platform/provider.
+- Retention: define and document retention for transcripts and any stored media; support deletion.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow & Quality Gates
+- Every change includes tests appropriate to the layer (unit tests for pure logic; integration tests for API/job flow).
+- API/schema changes require updating contract tests.
+- CI must run lint + typecheck (if applicable) + tests before merge.
+- User-visible behavior changes require updating product/README docs.
+- Repo must include reviewer-verifiable deliverables:
+	- README enables verification in < 10 minutes (local + deployed verification).
+	- Prompts/AI traceability is stored in `AI_LOG.md`.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution supersedes other practices for this repo.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Amendments must include:
+- The updated text.
+- Rationale and impact.
+- Migration/rollout plan if behavior or contracts change.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All PRs must confirm:
+- No transcript/user content leaked into logs.
+- Job and API contracts remain stable or are versioned.
+- Data retention/deletion behavior is unchanged or documented.
+- Deployed verification remains valid (working URL + reviewer credentials) or is updated as part of the change.
+
+**Version**: 1.1.0 | **Ratified**: 2026-02-12 | **Last Amended**: 2026-02-12
