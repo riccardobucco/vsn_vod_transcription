@@ -532,3 +532,40 @@ Be thorough.
 ```
 
 </details>
+
+## Fixed Race Condition: Jobs Stuck as Queued
+
+**Model:** `Claude Opus 4.6`
+
+### Changelog
+
+- Fixed race condition in job creation where `db.flush()` was used instead of `db.commit()` before dispatching the Celery task, causing the worker to query the DB before the transaction was committed — resulting in "Job not found" and jobs stuck permanently as `queued`.
+- Changed `await db.flush()` → `await db.commit()` in both `_create_upload_job` and `_create_url_job`.
+- Re-dispatched the 3 stuck jobs and verified all completed successfully.
+
+### Files Affected
+
+- `app/api/jobs.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+I have a Docker Compose stack for a FastAPI + Celery + PostgreSQL + Redis + MinIO VOD transcription app. Jobs I submit stay stuck as "queued" and never get processed.
+
+Please:
+
+1. Diagnose the issue end-to-end: check every layer — Docker container health, app logs, worker/Celery logs, broker (Redis) connectivity, and the database state. Don't stop at the first clue; trace the full lifecycle of a job from API submission to worker pickup.
+2. Inspect the code for race conditions, transaction handling, and anything that could cause the worker to miss or silently skip a job.
+3. Fix everything you find. Apply the minimal, correct fix.
+4. Rebuild and test. After fixing, rebuild the affected Docker images (`docker compose up -d --build`), re-dispatch any stuck jobs so they actually get processed, and watch the worker logs to confirm jobs go through the full pipeline (download → probe → transcode → transcribe → persist) and reach "completed" status.
+5. Verify in the database. Query the jobs table to confirm all previously stuck jobs now show the correct final status with transcript segments persisted.
+6. Iterate until every stuck job is resolved. If a job fails legitimately (e.g., file too large), that's fine — just confirm the failure is genuine and not caused by the bug.
+
+Be thorough.
+```
+
+</details>

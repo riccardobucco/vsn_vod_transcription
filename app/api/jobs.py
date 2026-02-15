@@ -138,7 +138,7 @@ async def _create_upload_job(file: UploadFile, user: User, db: AsyncSession) -> 
         status=JobStatus.queued,
     )
     db.add(job)
-    await db.flush()
+    await db.commit()
 
     # Dispatch Celery task
     from worker.tasks import process_transcription_job
@@ -174,7 +174,7 @@ async def _create_url_job(url: str, label: str | None, user: User, db: AsyncSess
         status=JobStatus.queued,
     )
     db.add(job)
-    await db.flush()
+    await db.commit()
 
     # Dispatch Celery task
     from worker.tasks import process_transcription_job
