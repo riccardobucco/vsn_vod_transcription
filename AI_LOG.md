@@ -681,3 +681,37 @@ During upload submission, the dashboard should show:
 ```
 
 </details>
+
+## Speckit Clarify: Dashboard Submission UX (PRG + 404 + Flash Confirmation + Best-Effort Progress)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Clarified upload progress behavior: determinate when browser progress events are available, otherwise indeterminate.
+- Clarified confirmation UX can be the existing dashboard route re-rendered (no new URL required).
+- Clarified job-not-found behavior returns HTTP 404 while rendering a friendly page.
+- Clarified successful submission uses Post/Redirect/Get (HTTP 303) to a GET-rendered confirmation state.
+- Clarified PRG confirmation display data is carried via server-side session/flash storage (not query params), and refreshed pages must not resubmit.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/spec.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.clarify.prompt.md](.github/prompts/speckit.clarify.prompt.md).
+
+1. Upload progress: use progress events when available
+2. Confirmation page may be the existing dashboard page re-rendered
+3. “Job not found” page must return HTTP 404
+4. Successful submissions must use Post/Redirect/Get (HTTP 303 redirect to a GET-rendered confirmation state)
+5. PRG confirmation state must be carried via server-side session/flash storage
+```
+
+</details>
