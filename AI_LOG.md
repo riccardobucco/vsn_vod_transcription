@@ -569,3 +569,309 @@ Be thorough.
 ```
 
 </details>
+
+## Speckit Specify: Dashboard Submission UX (Confirmation/Error/Not Found + Upload Feedback)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Created a complete, testable feature specification for improving the dashboard job submission UX so users never land on raw JSON.
+- Defined confirmation, friendly error, and job-not-found page behavior with prioritized user stories, acceptance scenarios, edge cases, functional requirements, entities, and measurable success criteria.
+- Added a spec quality checklist and marked it complete after validation.
+- Corrected feature numbering by renaming the feature branch/spec folder from `001-*` to `002-*` and updating references.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/spec.md`
+- `specs/002-dashboard-submission-ux/checklists/requirements.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.specify.prompt.md](.github/prompts/speckit.specify.prompt.md).
+
+# Product Goal
+
+Right now, when a user submits an upload from the dashboard, the browser lands on raw JSON. I want a better user experience: when the user submits a job, they should see a clear confirmation page; when something goes wrong, they should see a human-friendly error page; and when a job URL is invalid or missing, the user should see a proper “not found” page instead of a validation blob.
+
+# Why (Motivation)
+
+This tool is used by non-technical stakeholders. The core value proposition is “drop a video, get a transcription later,” not “debug HTTP responses.” The interface must communicate:
+
+- “We received your file.”
+- “Your job is queued/processing.”
+- “Here’s where to check status.”
+- “If something fails, here’s what happened and what to do next.”
+
+# What To Build (UX Requirements)
+
+## Submission Confirmation Page (Upload + URL)
+
+When the user submits a transcription job from the dashboard (either by uploading a file or pasting a direct video URL), the app must show a confirmation page instead of raw JSON.
+
+The confirmation page should:
+
+- Clearly state that the job was accepted and has started (typically “Queued”).
+- Show the submitted item label (e.g., filename or derived label).
+- Include two clear actions:
+  - “Back to dashboard”
+  - “View job details” (link to the existing job details page)
+- Keep the overall look consistent with the existing site (same header/nav, same minimal style).
+
+## Friendly Error Page (Submission Errors)
+
+If job creation fails from the dashboard flow (example: unsupported file type), show a friendly error page instead of a JSON error payload.
+
+The error page should:
+
+- Use plain language (e.g., “This file type isn’t supported yet.”).
+- Show the specific reason in a small “Details” area (e.g., “Allowed: MP4, MOV, MKV”).
+- Provide a single obvious recovery action (“Back to dashboard”)
+- Avoid technical noise (no stack traces, no JSON blobs).
+
+This should apply at minimum to:
+
+- Unsupported file format
+- File too large (if enforced)
+
+## Nice “Job Not Found / Invalid Link” Page
+
+If a user opens a job page that doesn’t exist, they should see a real page (not JSON).
+
+Also: if the user visits a job URL with an invalid job identifier (e.g., malformed ID), they should still see a friendly page (not a parsing/validation dump).
+
+This page should:
+
+- Use a clear title like “Job not found”.
+- Explain briefly: “This job doesn’t exist, or the link is invalid.”
+- Offer navigation: “Back to dashboard”
+
+No additional features (no search, no advanced troubleshooting). Keep it simple.
+
+## Upload Progress / Feedback While Submitting Large Files
+
+When a user clicks “Upload & Transcribe,” large uploads currently feel like the app is frozen. I want immediate feedback.
+
+During upload submission, the dashboard should show:
+
+- A visible “Uploading…” state immediately after the user submits
+- A progress indicator if possible (percentage/progress bar). If exact progress isn’t available, show an indeterminate progress indicator.
+- The submit button should be disabled while uploading to prevent double submits.
+- If the upload fails (network error, server rejects it), the user should land on the friendly error page described above.
+- This is only about the upload step (getting the file to the server). It is not about showing transcription progress (queued/processing/completed is already communicated elsewhere).
+
+# Success Criteria (Acceptance)
+
+- Submitting an upload from the dashboard never results in raw JSON being shown in the browser.
+- Submitting a URL from the dashboard never results in raw JSON/alert-only UX; it shows the confirmation page on success and the friendly error page on failure.
+- Visiting a non-existent or invalid job URL shows a friendly “Job not found” page.
+- Clicking “Upload & Transcribe” provides immediate upload feedback (progress or at least an uploading state) and prevents duplicate submissions.
+
+# Non-Goals (Keep Scope Tight)
+
+- No new pages beyond: confirmation, error, job-not-found.
+- No redesign of the dashboard or job details page.
+- No new job states, filters, admin features, or extra UI complexity.
+- Do not add unrelated improvements.
+```
+
+</details>
+
+## Speckit Clarify: Dashboard Submission UX (PRG + 404 + Flash Confirmation + Best-Effort Progress)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Clarified upload progress behavior: determinate when browser progress events are available, otherwise indeterminate.
+- Clarified confirmation UX can be the existing dashboard route re-rendered (no new URL required).
+- Clarified job-not-found behavior returns HTTP 404 while rendering a friendly page.
+- Clarified successful submission uses Post/Redirect/Get (HTTP 303) to a GET-rendered confirmation state.
+- Clarified PRG confirmation display data is carried via server-side session/flash storage (not query params), and refreshed pages must not resubmit.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/spec.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.clarify.prompt.md](.github/prompts/speckit.clarify.prompt.md).
+
+1. Upload progress: use progress events when available
+2. Confirmation page may be the existing dashboard page re-rendered
+3. “Job not found” page must return HTTP 404
+4. Successful submissions must use Post/Redirect/Get (HTTP 303 redirect to a GET-rendered confirmation state)
+5. PRG confirmation state must be carried via server-side session/flash storage
+```
+
+</details>
+
+## Speckit Plan: Dashboard Submission UX (Phase 0–1)
+
+**Model:** `GPT-5.2`
+
+### Changelog
+
+- Ran Speckit plan setup for `002-dashboard-submission-ux` and filled the implementation plan with repo-specific technical context and constitution gates.
+- Generated Phase 0/1 planning artifacts: research decisions, session/flash data model notes, minimal SSR route contract, and reviewer quickstart steps.
+- Updated Copilot agent context to include the 002 feature stack signals.
+
+### Files Affected
+
+- `.github/agents/copilot-instructions.md`
+- `specs/002-dashboard-submission-ux/plan.md`
+- `specs/002-dashboard-submission-ux/research.md`
+- `specs/002-dashboard-submission-ux/data-model.md`
+- `specs/002-dashboard-submission-ux/contracts/openapi.yaml`
+- `specs/002-dashboard-submission-ux/quickstart.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.plan.prompt.md](.github/prompts/speckit.plan.prompt.md).
+```
+
+</details>
+
+## Speckit Tasks: Dashboard Submission UX
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Generated a complete, testable implementation checklist for the Dashboard Submission UX feature (confirmation, error, not-found, upload feedback).
+- Tasks grouped by user story, with explicit file paths and parallelization markers ([P]).
+- Ensured each user story is independently completable and testable, with clear checkpoints.
+- Validated task format and dependencies for incremental and parallel delivery.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.tasks.prompt.md](.github/prompts/speckit.tasks.prompt.md).
+
+Break this down into tasks
+```
+
+</details>
+
+## Tasks Consistency Fixes
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Added phase 8 (Automated coverage for SSR UX changes and contract validation)
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.analyze.prompt.md](.github/prompts/speckit.analyze.prompt.md).
+```
+
+</details>
+
+## Dashboard Submission UX Implementation
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Implemented SSR submission routes with PRG + session flash confirmation flow and shared submission service.
+- Added friendly submission error and job-not-found HTML pages; updated dashboard UI to show confirmation state and upload progress with duplicate-submit protection.
+- Updated job detail route to render HTML 404 for malformed/missing IDs.
+- Added unit/integration/contract tests for flash helpers, SSR confirmation/error flows, job-not-found handling, and updated README + task tracking.
+
+### Files Affected
+
+- `README.md`
+- `app/api/jobs.py`
+- `app/auth/flash.py`
+- `app/main.py`
+- `app/routes/dashboard.py`
+- `app/routes/job_detail.py`
+- `app/routes/submissions.py`
+- `app/services/submission_errors.py`
+- `app/services/submission_service.py`
+- `app/templates/dashboard.html`
+- `app/templates/job_not_found.html`
+- `app/templates/submission_error.html`
+- `specs/002-dashboard-submission-ux/tasks.md`
+- `tests/contract/test_dashboard_submission_contract.py`
+- `tests/integration/test_dashboard_happy_path.py`
+- `tests/integration/test_dashboard_submission_ssr.py`
+- `tests/integration/test_job_detail_404.py`
+- `tests/integration/test_submission_error_ssr.py`
+- `tests/unit/test_flash.py`
+- `tests/unit/test_submission_validation.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.implement.prompt.md](.github/prompts/speckit.implement.prompt.md).
+```
+
+</details>
+
+## Fix Upload Submission Error and Test Typing
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Adjusted dashboard upload JS to build FormData before disabling inputs and handled 200 vs 303 responses; removed redundant confirmation link.
+- Added typing improvements in test helpers (typed dicts, return types, casts) for flash/session and dashboard SSR tests.
+- Marked yaml imports as untyped to satisfy type checking in OpenAPI contract tests.
+
+### Files Affected
+
+- `app/templates/dashboard.html`
+- `tests/contract/test_dashboard_submission_contract.py`
+- `tests/contract/test_openapi_schema_validation.py`
+- `tests/integration/test_dashboard_submission_ssr.py`
+- `tests/unit/test_flash.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+I’m seeing an upload error (“A file is required”) after submitting a video, plus some type-checking failures in tests (yaml import typing, missing type annotations in test helpers). Please debug and fix the upload flow and resolve the typing issues. Also clean up any redundant dashboard confirmation UI if you spot it.
+```
+
+</details>

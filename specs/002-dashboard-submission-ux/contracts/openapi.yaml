@@ -1,0 +1,106 @@
+openapi: 3.1.0
+info:
+  title: Dashboard Submission UX (HTML Routes)
+  version: 0.1.0
+  description: |
+    Minimal contract describing the SSR routes involved in the dashboard submission UX.
+    This does not replace the main JSON API contract under /api.
+servers:
+  - url: /
+paths:
+  /:
+    get:
+      summary: Render dashboard (optionally in confirmation state)
+      responses:
+        "200":
+          description: Dashboard HTML
+          content:
+            text/html:
+              schema:
+                type: string
+        "307":
+          description: Redirect to login when unauthenticated
+  /submit/upload:
+    post:
+      summary: Submit a new transcription job via file upload (SSR flow)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "303":
+          description: PRG redirect to dashboard confirmation state
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Redirect target (typically /)
+        "400":
+          description: Friendly submission error page
+          content:
+            text/html:
+              schema:
+                type: string
+        "307":
+          description: Redirect to login when unauthenticated
+  /submit/url:
+    post:
+      summary: Submit a new transcription job via direct URL (SSR flow)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+      responses:
+        "303":
+          description: PRG redirect to dashboard confirmation state
+          headers:
+            Location:
+              schema:
+                type: string
+        "400":
+          description: Friendly submission error page
+          content:
+            text/html:
+              schema:
+                type: string
+        "307":
+          description: Redirect to login when unauthenticated
+  /jobs/{job_id}:
+    get:
+      summary: Render job detail page
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema:
+            type: string
+          description: UUID string. Malformed values must render HTML 404.
+      responses:
+        "200":
+          description: Job detail HTML
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: Job not found HTML
+          content:
+            text/html:
+              schema:
+                type: string
+        "307":
+          description: Redirect to login when unauthenticated

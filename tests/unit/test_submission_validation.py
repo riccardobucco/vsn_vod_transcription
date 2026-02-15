@@ -22,16 +22,20 @@ class TestFormatAllowlist:
 class TestUrlValidation:
     """Test URL validation for SSRF protections."""
 
-    def test_http_allowed(self):
-        from worker.media.downloader import validate_url
+    def test_http_allowed(self, monkeypatch):
+        import worker.media.downloader as downloader
+
+        monkeypatch.setattr(downloader, "_is_private_ip", lambda hostname: False)
 
         # Should not raise
-        validate_url("http://example.com/video.mp4")
+        downloader.validate_url("http://archive.org/download/RefugeeLife2Alhaphis/podcast_refugee2.mp4")
 
-    def test_https_allowed(self):
-        from worker.media.downloader import validate_url
+    def test_https_allowed(self, monkeypatch):
+        import worker.media.downloader as downloader
 
-        validate_url("https://example.com/video.mp4")
+        monkeypatch.setattr(downloader, "_is_private_ip", lambda hostname: False)
+
+        downloader.validate_url("https://archive.org/download/RefugeeLife2Alhaphis/podcast_refugee2.mp4")
 
     def test_ftp_rejected(self):
         from worker.media.downloader import validate_url
