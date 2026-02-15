@@ -746,3 +746,32 @@ Follow instructions in [speckit.plan.prompt.md](.github/prompts/speckit.plan.pro
 ```
 
 </details>
+
+## Speckit Tasks: Dashboard Submission UX
+
+**Model:** `GPT-4.1`
+
+### Changelog
+
+- Generated a complete, testable implementation checklist for the Dashboard Submission UX feature (confirmation, error, not-found, upload feedback).
+- Tasks grouped by user story, with explicit file paths and parallelization markers ([P]).
+- Ensured each user story is independently completable and testable, with clear checkpoints.
+- Validated task format and dependencies for incremental and parallel delivery.
+
+### Files Affected
+
+- `specs/002-dashboard-submission-ux/tasks.md`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.tasks.prompt.md](.github/prompts/speckit.tasks.prompt.md).
+
+Break this down into tasks
+```
+
+</details>
