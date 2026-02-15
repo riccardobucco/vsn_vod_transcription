@@ -799,3 +799,49 @@ Follow instructions in [speckit.analyze.prompt.md](.github/prompts/speckit.analy
 ```
 
 </details>
+
+## Dashboard Submission UX Implementation
+
+**Model:** `GPT-5.2-Codex`
+
+### Changelog
+
+- Implemented SSR submission routes with PRG + session flash confirmation flow and shared submission service.
+- Added friendly submission error and job-not-found HTML pages; updated dashboard UI to show confirmation state and upload progress with duplicate-submit protection.
+- Updated job detail route to render HTML 404 for malformed/missing IDs.
+- Added unit/integration/contract tests for flash helpers, SSR confirmation/error flows, job-not-found handling, and updated README + task tracking.
+
+### Files Affected
+
+- `README.md`
+- `app/api/jobs.py`
+- `app/auth/flash.py`
+- `app/main.py`
+- `app/routes/dashboard.py`
+- `app/routes/job_detail.py`
+- `app/routes/submissions.py`
+- `app/services/submission_errors.py`
+- `app/services/submission_service.py`
+- `app/templates/dashboard.html`
+- `app/templates/job_not_found.html`
+- `app/templates/submission_error.html`
+- `specs/002-dashboard-submission-ux/tasks.md`
+- `tests/contract/test_dashboard_submission_contract.py`
+- `tests/integration/test_dashboard_happy_path.py`
+- `tests/integration/test_dashboard_submission_ssr.py`
+- `tests/integration/test_job_detail_404.py`
+- `tests/integration/test_submission_error_ssr.py`
+- `tests/unit/test_flash.py`
+- `tests/unit/test_submission_validation.py`
+
+### Prompt / Context
+
+<details>
+
+<summary>Click to expand full prompt</summary>
+
+```
+Follow instructions in [speckit.implement.prompt.md](.github/prompts/speckit.implement.prompt.md).
+```
+
+</details>

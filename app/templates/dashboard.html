@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — VOD Transcription{% endblock %}
+{% block title %}Dashboard - VOD Transcription{% endblock %}
 
 {% block content %}
 <div class="min-h-full">
@@ -16,28 +16,63 @@
     </nav>
 
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {% if confirmation %}
+        <div class="mb-8 rounded-lg bg-white p-6 shadow border-l-4 border-green-500">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Submission accepted</p>
+                    <h2 class="text-lg font-semibold text-gray-900">{{ confirmation.label }}</h2>
+                    <div class="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                        <span>Status</span>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                            {% if confirmation.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif confirmation.status == 'failed' %}bg-red-100 text-red-800
+                            {% elif confirmation.status == 'processing' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ confirmation.status }}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        Back to dashboard
+                    </a>
+                    <a href="/jobs/{{ confirmation.job_id }}" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+                        View job details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Submit Job -->
         <div class="mb-8 rounded-lg bg-white p-6 shadow">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Submit New Transcription</h2>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Upload form -->
-                <form action="/api/jobs" method="post" enctype="multipart/form-data" class="space-y-3">
+                <form id="upload-form" action="/submit/upload" method="post" enctype="multipart/form-data" class="space-y-3">
                     <label class="block text-sm font-medium text-gray-700">Upload Video File</label>
-                    <input type="file" name="file" accept=".mp4,.mov,.mkv"
-                           class="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
-                           required>
-                    <button type="submit"
+                    <input type="file" name="file" accept=".mp4,.mov,.mkv" required
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100">
+                    <button type="submit" id="upload-submit"
                             class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                         Upload & Transcribe
                     </button>
+
+                    <div id="upload-status" class="hidden rounded-md border border-indigo-100 bg-indigo-50 p-3">
+                        <p id="upload-status-text" class="text-sm font-medium text-indigo-700">Uploading...</p>
+                        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-indigo-100">
+                            <div id="upload-progress-bar" class="h-2 w-0 rounded-full bg-indigo-600"></div>
+                        </div>
+                        <p id="upload-progress-text" class="mt-1 text-xs text-indigo-600"></p>
+                    </div>
                 </form>
 
                 <!-- URL form -->
-                <form id="url-form" class="space-y-3">
+                <form id="url-form" action="/submit/url" method="post" class="space-y-3">
                     <label class="block text-sm font-medium text-gray-700">Direct Video URL</label>
-                    <input type="url" name="url" placeholder="https://example.com/video.mp4"
-                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
-                           required>
+                    <input type="url" name="url" placeholder="https://example.com/video.mp4" required
+                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm">
                     <button type="submit"
                             class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                         Fetch & Transcribe
@@ -86,20 +121,139 @@
 </div>
 
 <script>
-document.getElementById('url-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const url = e.target.querySelector('input[name="url"]').value;
-    const res = await fetch('/api/jobs', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({url})
-    });
-    if (res.ok) {
-        window.location.reload();
-    } else {
-        const err = await res.json();
-        alert(err.message || 'Failed to create job');
+(() => {
+    const uploadForm = document.getElementById('upload-form');
+    if (!uploadForm) {
+        return;
     }
-});
+
+    const submitButton = document.getElementById('upload-submit');
+    const fileInput = uploadForm.querySelector('input[type="file"]');
+    const statusBox = document.getElementById('upload-status');
+    const statusText = document.getElementById('upload-status-text');
+    const progressText = document.getElementById('upload-progress-text');
+    const progressBar = document.getElementById('upload-progress-bar');
+
+    let inFlight = false;
+
+    const setDisabled = (disabled) => {
+        submitButton.disabled = disabled;
+        fileInput.disabled = disabled;
+        if (disabled) {
+            submitButton.classList.add('opacity-60', 'cursor-not-allowed');
+            fileInput.classList.add('opacity-60', 'cursor-not-allowed');
+        } else {
+            submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+            fileInput.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
+    };
+
+    const resetProgress = () => {
+        progressBar.style.width = '0%';
+        progressBar.classList.remove('animate-pulse');
+        progressText.textContent = '';
+    };
+
+    const renderFallbackErrorPage = (details) => {
+        const html = `<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Error - VOD Transcription</title>
+<link rel="stylesheet" href="/static/tailwind.css">
+</head>
+<body class="h-full">
+<div class="min-h-full">
+<nav class="bg-indigo-600">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <a href="/" class="text-xl font-bold text-white">VOD Transcription</a>
+      <a href="/logout" class="text-sm text-white hover:text-indigo-200">Sign out</a>
+    </div>
+  </div>
+</nav>
+<main class="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="rounded-lg bg-white p-8 shadow">
+    <div class="flex items-start gap-3">
+      <div class="mt-1 h-3 w-3 rounded-full bg-red-500"></div>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Submission failed</h2>
+        <p class="mt-2 text-sm text-gray-600">We couldn't submit your job.</p>
+      </div>
+    </div>
+    <div class="mt-6 rounded-md bg-gray-50 p-4">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Details</p>
+      <p class="mt-2 text-sm text-gray-700">${details}</p>
+    </div>
+    <div class="mt-6">
+      <a href="/" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Back to dashboard</a>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>`;
+        document.open();
+        document.write(html);
+        document.close();
+    };
+
+    uploadForm.addEventListener('submit', (event) => {
+        if (inFlight) {
+            event.preventDefault();
+            return;
+        }
+        if (!uploadForm.reportValidity()) {
+            event.preventDefault();
+            return;
+        }
+
+        event.preventDefault();
+        inFlight = true;
+        setDisabled(true);
+        statusBox.classList.remove('hidden');
+        statusText.textContent = 'Uploading...';
+        resetProgress();
+
+        const formData = new FormData(uploadForm);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadForm.action, true);
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressBar.classList.remove('animate-pulse');
+                progressText.textContent = `${percent}%`;
+            } else {
+                progressBar.style.width = '100%';
+                progressBar.classList.add('animate-pulse');
+                progressText.textContent = 'Working...';
+            }
+        };
+
+        xhr.onload = () => {
+            if (xhr.status === 303 || xhr.status === 200) {
+                const redirectUrl = xhr.getResponseHeader('Location') || xhr.responseURL || '/';
+                window.location = redirectUrl;
+                return;
+            }
+            if (xhr.status >= 400) {
+                document.open();
+                document.write(xhr.responseText);
+                document.close();
+                return;
+            }
+            renderFallbackErrorPage('Upload failed. Please try again.');
+        };
+
+        xhr.onerror = () => {
+            renderFallbackErrorPage('Network error while uploading. Please try again.');
+        };
+
+        xhr.send(formData);
+    });
+})();
 </script>
 {% endblock %}

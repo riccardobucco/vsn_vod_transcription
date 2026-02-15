@@ -65,6 +65,7 @@ from app.api.metrics import router as metrics_router  # noqa: E402
 from app.auth.routes import router as auth_router  # noqa: E402
 from app.routes.dashboard import router as dashboard_router  # noqa: E402
 from app.routes.job_detail import router as job_detail_router  # noqa: E402
+from app.routes.submissions import router as submissions_router  # noqa: E402
 
 app.include_router(health_router, prefix="/api")
 app.include_router(jobs_router, prefix="/api")
@@ -73,3 +74,4 @@ app.include_router(metrics_router, prefix="/api")
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(job_detail_router)
+app.include_router(submissions_router)

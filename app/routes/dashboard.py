@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import current_user, get_session_data
+from app.auth.flash import CONFIRMATION_FLASH_KEY, pop_flash
 from app.db.session import get_db
 from app.services import jobs_service
 
@@ -21,6 +22,8 @@ async def dashboard(
     if session_data is None:
         return RedirectResponse(url="/login", status_code=307)
 
+    confirmation = await pop_flash(request, CONFIRMATION_FLASH_KEY)
+
     # Get or create user
     user = await current_user(session_data, db)
     jobs = await jobs_service.list_jobs_for_user(db, user.id)
@@ -33,5 +36,6 @@ async def dashboard(
             "request": request,
             "user_display_name": user.display_name or "Reviewer",
             "jobs": jobs,
+            "confirmation": confirmation,
         },
     )

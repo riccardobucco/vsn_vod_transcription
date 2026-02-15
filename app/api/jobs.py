@@ -1,26 +1,20 @@
 """Jobs API endpoints."""
 
-import os
 import uuid
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import current_user, require_session
-from app.db.models import JobSourceType, JobStatus, TranscriptionJob, User
+from app.db.models import JobStatus, TranscriptionJob, User
 from app.db.session import get_db
-from app.logging import get_logger
-from app.metrics import inc
-from app.services import jobs_service
-
-logger = get_logger(__name__)
+from app.services import jobs_service, submission_service
 
 router = APIRouter(tags=["Jobs"])
 
-ALLOWED_EXTENSIONS = {".mp4", ".mov", ".mkv"}
-MAX_UPLOAD_SIZE = 2 * 1024 * 1024 * 1024  # 2 GB
+ALLOWED_EXTENSIONS = submission_service.ALLOWED_EXTENSIONS
+MAX_UPLOAD_SIZE = submission_service.MAX_UPLOAD_SIZE
 
 
 def _job_to_dict(job: TranscriptionJob, overall_confidence: float | None = None) -> dict:
@@ -92,99 +86,25 @@ async def create_job(
     content_type = request.headers.get("content-type", "")
 
     if "multipart/form-data" in content_type and file is not None:
-        return await _create_upload_job(file, user, db)
+        try:
+            job = await submission_service.create_upload_job(file, user, db)
+        except submission_service.SubmissionError as exc:
+            raise HTTPException(status_code=400, detail=exc.detail) from exc
+        return JSONResponse(status_code=201, content=_job_to_dict(job))
     elif "application/json" in content_type:
         body = await request.json()
         url = body.get("url")
         label = body.get("label")
-        if not url:
-            raise HTTPException(status_code=400, detail="URL is required")
-        return await _create_url_job(url, label, user, db)
+        try:
+            job = await submission_service.create_url_job(url, label, user, db)
+        except submission_service.SubmissionError as exc:
+            raise HTTPException(status_code=400, detail=exc.detail) from exc
+        return JSONResponse(status_code=201, content=_job_to_dict(job))
     else:
         raise HTTPException(
             status_code=400,
             detail="Unsupported content type. Use multipart/form-data or application/json.",
         )
-
-
-async def _create_upload_job(file: UploadFile, user: User, db: AsyncSession) -> JSONResponse:
-    """Handle file upload job creation."""
-    filename = file.filename or "unknown"
-    ext = Path(filename).suffix.lower()
-
-    if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail=f"Unsupported format. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
-
-    job_id = uuid.uuid4()
-    object_key = f"uploads/{job_id}/{filename}"
-
-    # Read file and upload to MinIO
-    file_data = await file.read()
-    if len(file_data) > MAX_UPLOAD_SIZE:
-        raise HTTPException(status_code=400, detail="File too large (max 2 GB)")
-
-    from app.services.storage_minio import put_object
-
-    put_object(object_key, file_data, content_type=file.content_type or "application/octet-stream")
-
-    # Create job
-    job = TranscriptionJob(
-        id=job_id,
-        user_id=user.id,
-        source_type=JobSourceType.upload,
-        source_label=filename,
-        original_object_key=object_key,
-        input_format=ext.lstrip("."),
-        status=JobStatus.queued,
-    )
-    db.add(job)
-    await db.commit()
-
-    # Dispatch Celery task
-    from worker.tasks import process_transcription_job
-
-    process_transcription_job.delay(str(job_id))
-
-    inc("jobs_created")
-    logger.info("Created upload job %s for file %s", job_id, filename)
-
-    return JSONResponse(status_code=201, content=_job_to_dict(job))
-
-
-async def _create_url_job(url: str, label: str | None, user: User, db: AsyncSession) -> JSONResponse:
-    """Handle URL-based job creation."""
-    from urllib.parse import urlparse
-
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https"):
-        raise HTTPException(status_code=400, detail="Only http and https URLs are supported")
-
-    if not label:
-        # Derive label from URL
-        path = parsed.path.rstrip("/")
-        label = os.path.basename(path) if path else parsed.netloc
-
-    job_id = uuid.uuid4()
-    job = TranscriptionJob(
-        id=job_id,
-        user_id=user.id,
-        source_type=JobSourceType.url,
-        source_label=label,
-        source_url=url,
-        status=JobStatus.queued,
-    )
-    db.add(job)
-    await db.commit()
-
-    # Dispatch Celery task
-    from worker.tasks import process_transcription_job
-
-    process_transcription_job.delay(str(job_id))
-
-    inc("jobs_created")
-    logger.info("Created URL job %s for %s", job_id, parsed.netloc)
-
-    return JSONResponse(status_code=201, content=_job_to_dict(job))
 
 
 @router.get("/jobs/{job_id}/transcript", dependencies=[Depends(require_session)])

@@ -57,9 +57,12 @@ A private, authenticated web utility for transcribing VODs (Video On Demand) wit
 1. Navigate to `https://vsn.riccardobucco.com/`
 2. Sign in via Logto Cloud as the Reviewer
 3. Submit a video (upload MP4/MOV/MKV or paste a URL)
-4. Wait for transcription to complete
-5. View segments with timestamps and confidence indicators
-6. Download exports: TXT, SRT, or VTT
+4. Confirm the submission on the confirmation page, then return to the dashboard or open job details
+5. If a submission fails, review the friendly error page and return to the dashboard
+6. If a job link is invalid or missing, the Job not found page will explain the issue
+7. Wait for transcription to complete
+8. View segments with timestamps and confidence indicators
+9. Download exports: TXT, SRT, or VTT
 
 ### Sample test videos
 
